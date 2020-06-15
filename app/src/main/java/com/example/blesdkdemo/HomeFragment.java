@@ -194,6 +194,10 @@ public class HomeFragment extends Fragment {
         return contentView;
     }
 
+    /**
+     * Before the scan starts, you need to check the positioning service switch above 6.0, the positioning authority of the system above 6.0, and the Bluetooth switch
+     * @return
+     */
     private boolean checkBleFeatures() {
         //Check Bluetooth Location Service
         if (!BleTools.isLocationEnable(getContext())) {
