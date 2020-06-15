@@ -114,12 +114,12 @@ public class HomeFragment extends Fragment {
                             for (int i = 0; i < deviceList.size(); i++) {
                                 ScBluetoothDevice scBluetoothDevice = deviceList.get(i);
                                 if (!mDeviceList.contains(scBluetoothDevice)) {
-                                    mDeviceList = deviceList;
+                                    mDeviceList .add(scBluetoothDevice);
                                 }
                             }
                         }
                         StringBuffer sb = new StringBuffer();
-                        for (ScBluetoothDevice scBluetoothDevice : deviceList) {
+                        for (ScBluetoothDevice scBluetoothDevice : mDeviceList) {
                             sb.append(scBluetoothDevice.getDeviceName() + " " + scBluetoothDevice.getMacAddress());
                             sb.append("\n");
                         }
