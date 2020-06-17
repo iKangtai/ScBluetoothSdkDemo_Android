@@ -31,6 +31,7 @@ import com.ikangtai.bluetoothsdk.model.DeviceData;
 import com.ikangtai.bluetoothsdk.model.ScBluetoothDevice;
 import com.ikangtai.bluetoothsdk.util.BleTools;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
+import com.ikangtai.bluetoothsdk.util.ToastUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,26 +59,31 @@ public class HomeFragment extends Fragment {
                 }
             }
             dataListTv.setText(sb.toString());
+            ToastUtils.show(getContext(), "New data received "+macAddress);
         }
 
         @Override
         public void onReceiveError(String macAddress, int code, String msg) {
             Log.d("ble", code + "  " + msg);
+            ToastUtils.show(getContext(), "error in connecting "+macAddress);
         }
 
         @Override
         public void onConnectionStateChange(String macAddress, int state) {
             if (state == BluetoothProfile.STATE_CONNECTED) {
                 Log.d("ble", "The device is connected.");
+                ToastUtils.show(getContext(), "The device is connected "+macAddress);
 
             } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d("ble", "The device has been disconnected.");
+                ToastUtils.show(getContext(), "Device disconnected "+macAddress);
             }
         }
 
         @Override
         public void onReceiveCommandData(String macAddress, int type, boolean state, String value) {
             Log.d("ble", type + "  " + state + " " + value);
+            ToastUtils.show(getContext(), type +" command sending "+state);
         }
     };
 
@@ -114,7 +120,7 @@ public class HomeFragment extends Fragment {
                             for (int i = 0; i < deviceList.size(); i++) {
                                 ScBluetoothDevice scBluetoothDevice = deviceList.get(i);
                                 if (!mDeviceList.contains(scBluetoothDevice)) {
-                                    mDeviceList .add(scBluetoothDevice);
+                                    mDeviceList.add(scBluetoothDevice);
                                 }
                             }
                         }
@@ -137,6 +143,7 @@ public class HomeFragment extends Fragment {
                 if (!mDeviceList.isEmpty()) {
                     macAddress = mDeviceList.get(0).getMacAddress();
                     sharedPreferences.edit().putString("address", macAddress).commit();
+                    ToastUtils.show(getContext(), "Prepare to connect the device "+macAddress);
                 }
                 deviceListTv.setText(deviceListTv.getText().toString() + "\nScan end");
             }
@@ -163,7 +170,6 @@ public class HomeFragment extends Fragment {
                     ((Button) v).setText("Connection Status = connected");
                 } else if (connectStatus == BluetoothProfile.STATE_DISCONNECTED) {
                     ((Button) v).setText("Connection Status = not connected");
-
                 }
             }
         });
@@ -196,6 +202,7 @@ public class HomeFragment extends Fragment {
 
     /**
      * Before the scan starts, you need to check the positioning service switch above 6.0, the positioning authority of the system above 6.0, and the Bluetooth switch
+     *
      * @return
      */
     private boolean checkBleFeatures() {
