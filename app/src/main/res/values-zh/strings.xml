@@ -16,6 +16,12 @@
     <string name="request_location_premisson_tips">请打开手机蓝牙，否则无法连接体温计</string>
     <string name="sync_time">同步时间</string>
     <string name="sync_unit">同步温度单位</string>
+    <string name="sync_data">同步数据</string>
     <string name="disconnect">断开连接</string>
-
+    <string name="search">搜索设备</string>
+    <string name="title_select_thermometer">请选择蓝牙设备</string>
+    <string name="error_ble_scan">无法扫描蓝牙设备</string>
+    <string name="last_used">上次使用</string>
+    <string name="permission_denied">缺少权限</string>
+    <string name="not_data_record">未同步到记录</string>
 </resources>

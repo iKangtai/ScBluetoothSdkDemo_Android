@@ -30,5 +30,12 @@
     <string name="request_location_premisson_tips">Please turn on the Bluetooth of your phone, otherwise you cannot connect the thermometer.</string>
     <string name="sync_time">Sync Time</string>
     <string name="sync_unit">Sync Unit</string>
+    <string name="sync_data">Sync Data</string>
     <string name="disconnect">Disconnect</string>
+    <string name="search">Search</string>
+    <string name="title_select_thermometer">Select your device</string>
+    <string name="error_ble_scan">Fail to scan Bluetooth devices</string>
+    <string name="last_used">Last used</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="not_data_record">not data</string>
 </resources>

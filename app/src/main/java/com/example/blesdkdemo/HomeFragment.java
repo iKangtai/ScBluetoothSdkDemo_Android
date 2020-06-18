@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -16,10 +15,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.blesdkdemo.databinding.FragmentHomeBinding;
 import com.hjq.permissions.OnPermission;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
@@ -31,7 +28,6 @@ import com.ikangtai.bluetoothsdk.model.DeviceData;
 import com.ikangtai.bluetoothsdk.model.ScBluetoothDevice;
 import com.ikangtai.bluetoothsdk.util.BleTools;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
-import com.ikangtai.bluetoothsdk.util.ToastUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +35,8 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class HomeFragment extends Fragment {
     private String macAddress;
@@ -46,50 +44,64 @@ public class HomeFragment extends Fragment {
     private List<ScBluetoothDevice> mDeviceList = new ArrayList<>();
     public final static int REQUEST_LOCATION_SETTINGS = 1000;
     public final static int REQUEST_BLE_SETTINGS_CODE = 1001;
-    public TextView deviceListTv;
-    public TextView dataListTv;
+    private FragmentHomeBinding fragmentHomeBinding;
+    private HomeViewModel homeViewModel;
     private ReceiveDataListenerAdapter receiveDataListenerAdapter = new ReceiveDataListenerAdapter() {
         @Override
         public void onReceiveData(String macAddress, List<DeviceData> deviceDataList) {
-            StringBuffer sb = new StringBuffer();
-            for (DeviceData temperature : deviceDataList) {
-                if (temperature != null) {
-                    sb.append(temperature.getDate()).append("  ").append(temperature.getTemp());
-                    sb.append("\n");
+            appendConsoleContent("New data received " + macAddress);
+            if (!deviceDataList.isEmpty()) {
+                for (DeviceData temperature : deviceDataList) {
+                    if (temperature != null) {
+                        appendConsoleContent(temperature.getDate() + "  " + temperature.getTemp());
+                    }
                 }
+            } else {
+                appendConsoleContent(getString(R.string.not_data_record));
             }
-            dataListTv.setText(sb.toString());
-            ToastUtils.show(getContext(), "New data received "+macAddress);
         }
 
         @Override
         public void onReceiveError(String macAddress, int code, String msg) {
             Log.d("ble", code + "  " + msg);
-            ToastUtils.show(getContext(), "error in connecting "+macAddress);
+            appendConsoleContent("error in connecting " + macAddress);
         }
 
         @Override
         public void onConnectionStateChange(String macAddress, int state) {
             if (state == BluetoothProfile.STATE_CONNECTED) {
-                Log.d("ble", "The device is connected.");
-                ToastUtils.show(getContext(), "The device is connected "+macAddress);
-
+                appendConsoleContent("The device is connected " + macAddress);
+                homeViewModel.getIsSearching().setValue(false);
+                homeViewModel.getIsConnecting().setValue(false);
+                homeViewModel.getIsConnect().setValue(true);
             } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.d("ble", "The device has been disconnected.");
-                ToastUtils.show(getContext(), "Device disconnected "+macAddress);
+                appendConsoleContent("Device disconnected " + macAddress);
+                homeViewModel.getIsSearching().setValue(false);
+                homeViewModel.getIsConnecting().setValue(false);
+                homeViewModel.getIsConnect().setValue(false);
             }
         }
 
         @Override
         public void onReceiveCommandData(String macAddress, int type, boolean state, String value) {
             Log.d("ble", type + "  " + state + " " + value);
-            ToastUtils.show(getContext(), type +" command sending "+state);
+            appendConsoleContent(type + " command sending " + state);
         }
     };
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false);
+        homeViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication())).get(HomeViewModel.class);
+        fragmentHomeBinding.setModel(homeViewModel);
+        fragmentHomeBinding.setLifecycleOwner(this);
+        return fragmentHomeBinding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View contentView, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(contentView, savedInstanceState);
 
         scBluetoothClient = ScBluetoothClient.getInstance();
         scBluetoothClient.init(getContext());
@@ -99,20 +111,18 @@ public class HomeFragment extends Fragment {
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         getActivity().registerReceiver(receiver, filter);
 
-        View contentView = inflater.inflate(R.layout.fragment_home, container, false);
-        deviceListTv = contentView.findViewById(R.id.device_list);
-        dataListTv = contentView.findViewById(R.id.temp_list);
-
         // Get the address of a device that has been discovered
-        final SharedPreferences sharedPreferences = getActivity().getSharedPreferences("blesdkdemo", Context.MODE_PRIVATE);
-        macAddress = sharedPreferences.getString("address", null);
+        macAddress = MyApplication.getInstance().appPreferences.getLastDeviceAddress();
         //Scan nearby Bluetooth devices
-        contentView.findViewById(R.id.btn_find_device).setOnClickListener(new View.OnClickListener() {
+        fragmentHomeBinding.searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!checkBleFeatures()) {
                     return;
                 }
+                homeViewModel.getIsSearching().setValue(true);
+                homeViewModel.getIsConnecting().setValue(false);
+                homeViewModel.getIsConnect().setValue(false);
                 scBluetoothClient.startScanDevice(new ScanResultListener() {
                     @Override
                     public void onScannerResult(List<ScBluetoothDevice> deviceList) {
@@ -121,67 +131,39 @@ public class HomeFragment extends Fragment {
                                 ScBluetoothDevice scBluetoothDevice = deviceList.get(i);
                                 if (!mDeviceList.contains(scBluetoothDevice)) {
                                     mDeviceList.add(scBluetoothDevice);
+                                    fragmentHomeBinding.recyclerView.getAdapter().notifyItemInserted(mDeviceList.size() - 1);
                                 }
                             }
                         }
-                        StringBuffer sb = new StringBuffer();
-                        for (ScBluetoothDevice scBluetoothDevice : mDeviceList) {
-                            sb.append(scBluetoothDevice.getDeviceName() + " " + scBluetoothDevice.getMacAddress());
-                            sb.append("\n");
-                        }
-                        deviceListTv.setText(sb.toString());
                     }
                 });
             }
         });
-
         //Stop scan devices
-        contentView.findViewById(R.id.btn_stop_scan).setOnClickListener(new View.OnClickListener() {
+        fragmentHomeBinding.stopSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                homeViewModel.getIsSearching().setValue(false);
                 scBluetoothClient.stopScanDevice();
-                if (!mDeviceList.isEmpty()) {
-                    macAddress = mDeviceList.get(0).getMacAddress();
-                    sharedPreferences.edit().putString("address", macAddress).commit();
-                    ToastUtils.show(getContext(), "Prepare to connect the device "+macAddress);
-                }
-                deviceListTv.setText(deviceListTv.getText().toString() + "\nScan end");
             }
         });
-        //Connect a Bluetooth device
-        contentView.findViewById(R.id.btn_connect_device).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                if (!checkBleFeatures()) {
-                    return;
-                }
-                if (TextUtils.isEmpty(macAddress)) {
-                    return;
-                }
-                scBluetoothClient.connectDevice(macAddress, receiveDataListenerAdapter);
-            }
-        });
-        //Get the connection status of the device, the default is STATE_DISCONNECTED
-        contentView.findViewById(R.id.btn_connect_state).setOnClickListener(new View.OnClickListener() {
+
+        //Sync data from Bluetooth device
+        fragmentHomeBinding.btnSyncData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int connectStatus = scBluetoothClient.getConnectState(macAddress);
-                if (connectStatus == BluetoothProfile.STATE_CONNECTED) {
-                    ((Button) v).setText("Connection Status = connected");
-                } else if (connectStatus == BluetoothProfile.STATE_DISCONNECTED) {
-                    ((Button) v).setText("Connection Status = not connected");
-                }
+                scBluetoothClient.sendDeviceCommand(macAddress, BleCommand.GET_DEVICE_DATA);
             }
         });
         //Sync phone time to Bluetooth device
-        contentView.findViewById(R.id.btn_sync_time).setOnClickListener(new View.OnClickListener() {
+        fragmentHomeBinding.btnSyncTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 scBluetoothClient.sendDeviceCommand(macAddress, BleCommand.SYNC_TIME);
             }
         });
         //Sync unit to Bluetooth device
-        contentView.findViewById(R.id.btn_sync_unit).setOnClickListener(new View.OnClickListener() {
+        fragmentHomeBinding.btnSyncUnit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //set unit c
@@ -190,14 +172,60 @@ public class HomeFragment extends Fragment {
                 //scBluetoothClient.sendDeviceCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_F);
             }
         });
-        //Bluetooth device needs to be disconnected after use
-        contentView.findViewById(R.id.btn_disconnect).setOnClickListener(new View.OnClickListener() {
+        //Get the connection status of the device, the default is STATE_DISCONNECTED
+        fragmentHomeBinding.btnConnectState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int connectStatus = scBluetoothClient.getConnectState(macAddress);
+                if (connectStatus == BluetoothProfile.STATE_CONNECTED) {
+                    appendConsoleContent("connected " + macAddress);
+                } else if (connectStatus == BluetoothProfile.STATE_DISCONNECTED) {
+                    appendConsoleContent("not connected " + macAddress);
+                }
+            }
+        });
+        //Bluetooth device needs to be disconnected after use
+        fragmentHomeBinding.btnDisconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                homeViewModel.getIsSearching().setValue(false);
+                homeViewModel.getIsConnecting().setValue(false);
+                homeViewModel.getIsConnect().setValue(false);
                 scBluetoothClient.disconnectDevice(macAddress);
             }
         });
-        return contentView;
+        DeviceListAdapter deviceListAdapter = new DeviceListAdapter(mDeviceList);
+        deviceListAdapter.setItemClickListener(new DeviceListAdapter.ItemClickListener() {
+            @Override
+            public void onClick(ScBluetoothDevice scBluetoothDevice) {
+                macAddress = scBluetoothDevice.getMacAddress();
+                appendConsoleContent("Prepare to connect the device " + macAddress);
+                if (!checkBleFeatures()) {
+                    return;
+                }
+                if (TextUtils.isEmpty(macAddress)) {
+                    return;
+                }
+                homeViewModel.getIsSearching().setValue(false);
+                homeViewModel.getIsConnecting().setValue(true);
+                homeViewModel.getIsConnect().setValue(false);
+                //Connect a Bluetooth device
+                scBluetoothClient.connectDevice(macAddress, receiveDataListenerAdapter);
+            }
+        });
+        fragmentHomeBinding.recyclerView.setAdapter(deviceListAdapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        fragmentHomeBinding.recyclerView.setLayoutManager(layoutManager);
+    }
+
+    private void appendConsoleContent(String massage) {
+        StringBuffer stringBuffer = homeViewModel.getConsoleContent().getValue();
+        if (stringBuffer == null) {
+            stringBuffer = new StringBuffer();
+        }
+        stringBuffer.append(massage);
+        stringBuffer.append("\n");
+        homeViewModel.getConsoleContent().setValue(stringBuffer);
     }
 
     /**
@@ -242,7 +270,7 @@ public class HomeFragment extends Fragment {
                                 builder.create().show();
 
                             } else {
-                                Toast.makeText(getContext(), R.string.request_location_premisson, Toast.LENGTH_LONG).show();
+                                appendConsoleContent(getString(R.string.request_location_premisson));
                             }
                         }
                     });
@@ -265,9 +293,11 @@ public class HomeFragment extends Fragment {
             if (action != null && action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                 if (state == BluetoothAdapter.STATE_OFF) {
-                    Log.d("ble", "Bluetooth off");
+                    Log.d("ble", "Bluetooth is ff");
+                    appendConsoleContent("Bluetooth off");
                 } else if (state == BluetoothAdapter.STATE_ON) {
                     Log.d("ble", "Bluetooth is on");
+                    appendConsoleContent("Bluetooth is on");
                 }
             }
         }
@@ -281,15 +311,15 @@ public class HomeFragment extends Fragment {
             boolean openLocationServer = BleTools.isLocationEnable(getContext());
             if (openLocationServer) {
                 LogUtils.e("Location service: The user manually sets the location service");
-                Toast.makeText(getContext(), R.string.location_service_turn_on, Toast.LENGTH_LONG).show();
+                appendConsoleContent(getString(R.string.location_service_turn_on));
             } else {
                 LogUtils.e("Location service: The user manually set the location service is not enabled");
-                Toast.makeText(getContext(), R.string.location_service_turn_off, Toast.LENGTH_LONG).show();
+                appendConsoleContent(getString(R.string.location_service_turn_off));
             }
         } else if (requestCode == REQUEST_BLE_SETTINGS_CODE) {
             boolean enable = BleTools.isLocationEnable(getContext());
             if (!enable) {
-                Toast.makeText(getContext(), R.string.request_location_premisson_tips, Toast.LENGTH_LONG).show();
+                appendConsoleContent(getString(R.string.request_location_premisson_tips));
             }
         }
     }
