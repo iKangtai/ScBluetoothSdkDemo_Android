@@ -21,11 +21,11 @@ import com.hjq.permissions.OnPermission;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 import com.ikangtai.bluetoothsdk.BleCommand;
-import com.ikangtai.bluetoothsdk.ScBluetoothClient;
+import com.ikangtai.bluetoothsdk.ScPeripheralManager;
 import com.ikangtai.bluetoothsdk.listener.ReceiveDataListenerAdapter;
 import com.ikangtai.bluetoothsdk.listener.ScanResultListener;
-import com.ikangtai.bluetoothsdk.model.DeviceData;
-import com.ikangtai.bluetoothsdk.model.ScBluetoothDevice;
+import com.ikangtai.bluetoothsdk.model.ScPeripheralData;
+import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 import com.ikangtai.bluetoothsdk.util.BleTools;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
 
@@ -40,18 +40,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class HomeFragment extends Fragment {
     private String macAddress;
-    private ScBluetoothClient scBluetoothClient;
-    private List<ScBluetoothDevice> mDeviceList = new ArrayList<>();
+    private ScPeripheralManager scPeripheralManager;
+    private List<ScPeripheral> mDeviceList = new ArrayList<>();
     public final static int REQUEST_LOCATION_SETTINGS = 1000;
     public final static int REQUEST_BLE_SETTINGS_CODE = 1001;
     private FragmentHomeBinding fragmentHomeBinding;
     private HomeViewModel homeViewModel;
     private ReceiveDataListenerAdapter receiveDataListenerAdapter = new ReceiveDataListenerAdapter() {
         @Override
-        public void onReceiveData(String macAddress, List<DeviceData> deviceDataList) {
+        public void onReceiveData(String macAddress, List<ScPeripheralData> scPeripheralDataList) {
             appendConsoleContent("New data received " + macAddress);
-            if (!deviceDataList.isEmpty()) {
-                for (DeviceData temperature : deviceDataList) {
+            if (!scPeripheralDataList.isEmpty()) {
+                for (ScPeripheralData temperature : scPeripheralDataList) {
                     if (temperature != null) {
                         appendConsoleContent(temperature.getDate() + "  " + temperature.getTemp());
                     }
@@ -103,8 +103,8 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View contentView, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(contentView, savedInstanceState);
 
-        scBluetoothClient = ScBluetoothClient.getInstance();
-        scBluetoothClient.init(getContext());
+        scPeripheralManager = ScPeripheralManager.getInstance();
+        scPeripheralManager.init(getContext());
 
         //Register to receive Bluetooth switch broadcast
         IntentFilter filter = new IntentFilter();
@@ -123,12 +123,12 @@ public class HomeFragment extends Fragment {
                 homeViewModel.getIsSearching().setValue(true);
                 homeViewModel.getIsConnecting().setValue(false);
                 homeViewModel.getIsConnect().setValue(false);
-                scBluetoothClient.startScanDevice(new ScanResultListener() {
+                scPeripheralManager.startScan(new ScanResultListener() {
                     @Override
-                    public void onScannerResult(List<ScBluetoothDevice> deviceList) {
+                    public void onScannerResult(List<ScPeripheral> deviceList) {
                         if (deviceList != null) {
                             for (int i = 0; i < deviceList.size(); i++) {
-                                ScBluetoothDevice scBluetoothDevice = deviceList.get(i);
+                                ScPeripheral scBluetoothDevice = deviceList.get(i);
                                 if (!mDeviceList.contains(scBluetoothDevice)) {
                                     mDeviceList.add(scBluetoothDevice);
                                     fragmentHomeBinding.recyclerView.getAdapter().notifyItemInserted(mDeviceList.size() - 1);
@@ -144,7 +144,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 homeViewModel.getIsSearching().setValue(false);
-                scBluetoothClient.stopScanDevice();
+                scPeripheralManager.stopScan();
             }
         });
 
@@ -152,14 +152,14 @@ public class HomeFragment extends Fragment {
         fragmentHomeBinding.btnSyncData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scBluetoothClient.sendDeviceCommand(macAddress, BleCommand.GET_DEVICE_DATA);
+                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.GET_DEVICE_DATA);
             }
         });
         //Sync phone time to Bluetooth device
         fragmentHomeBinding.btnSyncTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scBluetoothClient.sendDeviceCommand(macAddress, BleCommand.SYNC_TIME);
+                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_TIME);
             }
         });
         //Sync unit to Bluetooth device
@@ -167,16 +167,16 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //set unit c
-                scBluetoothClient.sendDeviceCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_C);
+                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_C);
                 //set unit f
-                //scBluetoothClient.sendDeviceCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_F);
+                //scBluetoothClient.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_F);
             }
         });
         //Get the connection status of the device, the default is STATE_DISCONNECTED
         fragmentHomeBinding.btnConnectState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int connectStatus = scBluetoothClient.getConnectState(macAddress);
+                int connectStatus = scPeripheralManager.getConnectState(macAddress);
                 if (connectStatus == BluetoothProfile.STATE_CONNECTED) {
                     appendConsoleContent("connected " + macAddress);
                 } else if (connectStatus == BluetoothProfile.STATE_DISCONNECTED) {
@@ -191,13 +191,13 @@ public class HomeFragment extends Fragment {
                 homeViewModel.getIsSearching().setValue(false);
                 homeViewModel.getIsConnecting().setValue(false);
                 homeViewModel.getIsConnect().setValue(false);
-                scBluetoothClient.disconnectDevice(macAddress);
+                scPeripheralManager.disconnectPeripheral(macAddress);
             }
         });
         DeviceListAdapter deviceListAdapter = new DeviceListAdapter(mDeviceList);
         deviceListAdapter.setItemClickListener(new DeviceListAdapter.ItemClickListener() {
             @Override
-            public void onClick(ScBluetoothDevice scBluetoothDevice) {
+            public void onClick(ScPeripheral scBluetoothDevice) {
                 macAddress = scBluetoothDevice.getMacAddress();
                 appendConsoleContent("Prepare to connect the device " + macAddress);
                 if (!checkBleFeatures()) {
@@ -210,7 +210,7 @@ public class HomeFragment extends Fragment {
                 homeViewModel.getIsConnecting().setValue(true);
                 homeViewModel.getIsConnect().setValue(false);
                 //Connect a Bluetooth device
-                scBluetoothClient.connectDevice(macAddress, receiveDataListenerAdapter);
+                scPeripheralManager.connectPeripheral(macAddress, receiveDataListenerAdapter);
             }
         });
         fragmentHomeBinding.recyclerView.setAdapter(deviceListAdapter);
@@ -328,9 +328,9 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         getActivity().unregisterReceiver(receiver);
-        if (scBluetoothClient != null) {
-            scBluetoothClient.stopScanDevice();
-            scBluetoothClient.disconnectDevice();
+        if (scPeripheralManager != null) {
+            scPeripheralManager.stopScan();
+            scPeripheralManager.disconnectPeripheral();
         }
     }
 }

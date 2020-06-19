@@ -25,7 +25,7 @@
 ## Scan nearby Bluetooth devices
 ```java
     //Before the scan starts, you need to check the positioning service switch above 6.0, the positioning authority of the system above 6.0, and the Bluetooth switch
-    scBluetoothClient.startScanDevice(new ScanResultListener() {
+    scBluetoothClient.startScan(new ScanResultListener() {
         @Override
         public void onScannerResult(List<ScBluetoothDevice> deviceList) {
 
@@ -35,12 +35,12 @@
 ```
 ## Connect the Bluetooth device
 ```java
-  scBluetoothClient.connectDevice(macAddress, receiveDataListenerAdapter);
+  scBluetoothClient.connectPeripheral(macAddress, receiveDataListenerAdapter);
 ```
 ## Manually release resources when the call is completed
 ```java
-    scBluetoothClient.stopScanDevice();
-    scBluetoothClient.disconnectDevice();
+    scBluetoothClient.stopScan();
+    scBluetoothClient.disconnectPeripheral();
 ```
 ## Obfuscation settings
 ```java

@@ -7,7 +7,7 @@
     <data>
         <variable
             name="device"
-            type="com.ikangtai.bluetoothsdk.model.ScBluetoothDevice" />
+            type="com.ikangtai.bluetoothsdk.model.ScPeripheral" />
         <variable
             name="isLastConnectedDevice"
             type="Boolean" />

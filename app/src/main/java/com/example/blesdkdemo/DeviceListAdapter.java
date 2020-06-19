@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.blesdkdemo.databinding.DeviceListItemBinding;
-import com.ikangtai.bluetoothsdk.model.ScBluetoothDevice;
+import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 
 import java.util.List;
 
@@ -18,10 +18,10 @@ import androidx.recyclerview.widget.RecyclerView;
  * @author xiongyl 2020/6/18 22:35
  */
 public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.DeviceListViewHolder> {
-    private List<ScBluetoothDevice> devices;
+    private List<ScPeripheral> devices;
     private ItemClickListener itemClickListener;
 
-    public DeviceListAdapter(List<ScBluetoothDevice> devices) {
+    public DeviceListAdapter(List<ScPeripheral> devices) {
         this.devices = devices;
     }
 
@@ -69,7 +69,7 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.De
     }
 
     public interface ItemClickListener {
-        void onClick(ScBluetoothDevice scBluetoothDevice);
+        void onClick(ScPeripheral scBluetoothDevice);
     }
 
 }
