@@ -20,27 +20,27 @@
 ```
 ## Init before using SDK
 ```java
-    ScBluetoothClient.getInstance().init(getContext());
+    ScPeripheralManager.getInstance().init(getContext());
 ```
 ## Scan nearby Bluetooth devices
 ```java
     //Before the scan starts, you need to check the positioning service switch above 6.0, the positioning authority of the system above 6.0, and the Bluetooth switch
-    scBluetoothClient.startScan(new ScanResultListener() {
+    scPeripheralManager.startScan(new ScanResultListener() {
         @Override
         public void onScannerResult(List<ScBluetoothDevice> deviceList) {
 
         }
     });
-    After the scan is completed, you need to call scBluetoothClient.stopScanDevice()
+    After the scan is completed, you need to call scPeripheralManager.stopScanDevice()
 ```
 ## Connect the Bluetooth device
 ```java
-  scBluetoothClient.connectPeripheral(macAddress, receiveDataListenerAdapter);
+  scPeripheralManager.connectPeripheral(macAddress, receiveDataListenerAdapter);
 ```
 ## Manually release resources when the call is completed
 ```java
-    scBluetoothClient.stopScan();
-    scBluetoothClient.disconnectPeripheral();
+    scPeripheralManager.stopScan();
+    scPeripheralManager.disconnectPeripheral();
 ```
 ## Obfuscation settings
 ```java
