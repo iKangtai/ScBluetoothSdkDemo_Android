@@ -1,6 +1,7 @@
 # ScBluetoothSdkDemo_Android
 
-## Add SDK reference
+### Add SDK reference
+
 ```java
     1.In the first way, copy the SDK aar file to the app/libs/ directory of the project, then configure gradle
         android {
@@ -18,31 +19,51 @@
 
     2.The second way, to copy the ScBluetoothLib module configuration of Demo to the project, and then add implementation project(':ScBluetoothLib') to gradle dependencies
 ```
-## Init before using SDK
+
+### Init before using SDK
+
 ```java
     ScPeripheralManager.getInstance().init(getContext());
 ```
-## Scan nearby Bluetooth devices
+### Log config
+```java
+    /**
+     * There are two ways to configure log
+     * 1. {@link Config.Builder#logWriter(Writer)}
+     * 2. {@link Config.Builder#logFilePath(String)}
+     */
+    Config config = new Config.Builder().logWriter(logWriter).build();
+    //Config config = new Config.Builder().logFilePath(logFilePath).build();
+    scPeripheralManager.init(getContext(), config);
+```
+### Scan nearby Bluetooth devices
+
 ```java
     //Before the scan starts, you need to check the positioning service switch above 6.0, the positioning authority of the system above 6.0, and the Bluetooth switch
     scPeripheralManager.startScan(new ScanResultListener() {
         @Override
-        public void onScannerResult(List<ScBluetoothDevice> deviceList) {
+        public void onScannerResult(List<ScPeripheral> deviceList) {
 
         }
     });
-    After the scan is completed, you need to call scPeripheralManager.stopScanDevice()
+    After the scan is completed, you need to call scPeripheralManager.stopScan()
 ```
-## Connect the Bluetooth device
+
+### Connect the Bluetooth device
+
 ```java
   scPeripheralManager.connectPeripheral(macAddress, receiveDataListenerAdapter);
 ```
-## Manually release resources when the call is completed
+
+### Manually release resources when the call is completed
+
 ```java
     scPeripheralManager.stopScan();
     scPeripheralManager.disconnectPeripheral();
 ```
-## Obfuscation settings
+
+### Obfuscation settings
+
 ```java
     -dontwarn  com.ikangtai.bluetoothsdk.**
     -keep class com.ikangtai.bluetoothsdk.** {*;}

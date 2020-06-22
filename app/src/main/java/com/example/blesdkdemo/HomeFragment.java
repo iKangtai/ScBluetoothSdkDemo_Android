@@ -21,14 +21,21 @@ import com.hjq.permissions.OnPermission;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 import com.ikangtai.bluetoothsdk.BleCommand;
+import com.ikangtai.bluetoothsdk.Config;
 import com.ikangtai.bluetoothsdk.ScPeripheralManager;
 import com.ikangtai.bluetoothsdk.listener.ReceiveDataListenerAdapter;
 import com.ikangtai.bluetoothsdk.listener.ScanResultListener;
 import com.ikangtai.bluetoothsdk.model.ScPeripheralData;
 import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 import com.ikangtai.bluetoothsdk.util.BleTools;
+import com.ikangtai.bluetoothsdk.util.FileUtil;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,7 +111,22 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(contentView, savedInstanceState);
 
         scPeripheralManager = ScPeripheralManager.getInstance();
-        scPeripheralManager.init(getContext());
+        String logFilePath = new File(FileUtil.createRootPath(getContext()), "log_test.txt").getAbsolutePath();
+        BufferedWriter logWriter = null;
+        try {
+            logWriter = new BufferedWriter(new FileWriter(logFilePath, true), 2048);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        /**
+         * There are two ways to configure log
+         * 1. {@link Config.Builder#logWriter(Writer)}
+         * 2. {@link Config.Builder#logFilePath(String)}
+         */
+        Config config = new Config.Builder().logWriter(logWriter).build();
+        //Config config = new Config.Builder().logFilePath(logFilePath).build();
+        //sdk init
+        scPeripheralManager.init(getContext(), config);
 
         //Register to receive Bluetooth switch broadcast
         IntentFilter filter = new IntentFilter();
