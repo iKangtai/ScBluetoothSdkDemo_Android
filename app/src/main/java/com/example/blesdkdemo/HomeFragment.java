@@ -25,8 +25,8 @@ import com.ikangtai.bluetoothsdk.Config;
 import com.ikangtai.bluetoothsdk.ScPeripheralManager;
 import com.ikangtai.bluetoothsdk.listener.ReceiveDataListenerAdapter;
 import com.ikangtai.bluetoothsdk.listener.ScanResultListener;
-import com.ikangtai.bluetoothsdk.model.ScPeripheralData;
 import com.ikangtai.bluetoothsdk.model.ScPeripheral;
+import com.ikangtai.bluetoothsdk.model.ScPeripheralData;
 import com.ikangtai.bluetoothsdk.util.BleTools;
 import com.ikangtai.bluetoothsdk.util.FileUtil;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
@@ -152,6 +152,9 @@ public class HomeFragment extends Fragment {
                             for (int i = 0; i < deviceList.size(); i++) {
                                 ScPeripheral scBluetoothDevice = deviceList.get(i);
                                 if (!mDeviceList.contains(scBluetoothDevice)) {
+//                                    if (scBluetoothDevice.getDeviceType() == BleTools.TYPE_UNKNOWN) {
+//                                        continue;
+//                                    }
                                     mDeviceList.add(scBluetoothDevice);
                                     fragmentHomeBinding.recyclerView.getAdapter().notifyItemInserted(mDeviceList.size() - 1);
                                 }
