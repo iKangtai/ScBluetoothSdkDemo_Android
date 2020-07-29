@@ -29,7 +29,8 @@
     <string name="location_service_turn_off">The location service is not enabled</string>
     <string name="request_location_premisson_tips">Please turn on the Bluetooth of your phone, otherwise you cannot connect the thermometer.</string>
     <string name="sync_time">Sync Time</string>
-    <string name="sync_unit">Sync Unit</string>
+    <string name="sync_unit_c">Sync Unit ℃</string>
+    <string name="sync_unit_f">Sync Unit ℉</string>
     <string name="sync_data">Sync Data</string>
     <string name="disconnect">Disconnect</string>
     <string name="search">Search</string>

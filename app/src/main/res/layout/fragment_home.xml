@@ -111,24 +111,31 @@
                 android:text="@string/sync_data" />
 
             <Button
-                android:id="@+id/btn_sync_time"
+                android:id="@+id/btn_sync_unit_c"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/sync_time" />
+                android:text="@string/sync_unit_c" />
 
             <Button
-                android:id="@+id/btn_sync_unit"
+                android:id="@+id/btn_sync_unit_f"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/sync_unit" />
+                android:text="@string/sync_unit_f" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_sync_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/sync_time" />
 
             <Button
                 android:id="@+id/btn_connect_state"

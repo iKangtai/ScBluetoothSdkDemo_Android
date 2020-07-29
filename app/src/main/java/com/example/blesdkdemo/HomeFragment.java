@@ -187,14 +187,27 @@ public class HomeFragment extends Fragment {
                 scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_TIME);
             }
         });
-        //Sync unit to Bluetooth device
-        fragmentHomeBinding.btnSyncUnit.setOnClickListener(new View.OnClickListener() {
+        //Sync phone time to Bluetooth device
+        fragmentHomeBinding.btnSyncTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_TIME);
+            }
+        });
+        //Sync unit c to Bluetooth device
+        fragmentHomeBinding.btnSyncUnitC.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //set unit c
                 scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_C);
+            }
+        });
+        //Sync unit f to Bluetooth device
+        fragmentHomeBinding.btnSyncUnitF.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 //set unit f
-                //scBluetoothClient.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_F);
+                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_F);
             }
         });
         //Get the connection status of the device, the default is STATE_DISCONNECTED
