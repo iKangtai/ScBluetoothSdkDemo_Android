@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ScBleSdk_Android</string>
+    <string name="app_name">ScBleSdkDemo</string>
     <string name="unbind_success">解绑成功</string>
     <string name="connect_device">连接体温计</string>
     <string name="stop_scan">停止扫描</string>
