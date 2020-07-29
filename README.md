@@ -54,7 +54,26 @@
 ```java
   scPeripheralManager.connectPeripheral(macAddress, receiveDataListenerAdapter);
 ```
+### Sync data from Bluetooth device
 
+```java
+  scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.GET_DEVICE_DATA);
+```
+### Sync phone time to Bluetooth device
+
+```java
+  scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_TIME);
+```
+### Sync unit c to Bluetooth device
+
+```java
+  scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_C);
+```
+### Sync unit f to Bluetooth device
+
+```java
+  scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_F);
+```
 ### Manually release resources when the call is completed
 
 ```java
