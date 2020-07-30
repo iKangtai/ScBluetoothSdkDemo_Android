@@ -13,7 +13,7 @@
         }
 
         dependencies {
-            implementation(name: 'scbluetoothlib-release-v1.0.0-alpha1', ext: 'aar')
+            implementation(name: 'scbluetoothlib-release-v1.0.1', ext: 'aar')
         }
 
 
