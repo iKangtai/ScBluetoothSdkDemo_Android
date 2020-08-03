@@ -63,6 +63,7 @@ public class HomeFragment extends Fragment {
                         appendConsoleContent(temperature.getDate() + "  " + temperature.getTemp());
                     }
                 }
+                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SEND_TEMP_ACK, scPeripheralDataList.size());
             } else {
                 appendConsoleContent(getString(R.string.not_data_record));
             }
