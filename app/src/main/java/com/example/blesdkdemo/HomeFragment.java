@@ -11,7 +11,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,7 +70,10 @@ public class HomeFragment extends Fragment {
 
         @Override
         public void onReceiveError(String macAddress, int code, String msg) {
-            Log.d("ble", code + "  " + msg);
+            /**
+             * The code see {@link com.ikangtai.bluetoothsdk.util.BleCode}
+             */
+            LogUtils.d("onReceiveError:" + code + "  " + msg);
             appendConsoleContent("error in connecting " + macAddress);
         }
 
@@ -82,6 +84,7 @@ public class HomeFragment extends Fragment {
                 homeViewModel.getIsSearching().setValue(false);
                 homeViewModel.getIsConnecting().setValue(false);
                 homeViewModel.getIsConnect().setValue(true);
+                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_C);
             } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
                 appendConsoleContent("Device disconnected " + macAddress);
                 homeViewModel.getIsSearching().setValue(false);
@@ -92,7 +95,10 @@ public class HomeFragment extends Fragment {
 
         @Override
         public void onReceiveCommandData(String macAddress, int type, boolean state, String value) {
-            Log.d("ble", type + "  " + state + " " + value);
+            /**
+             * The type see {@link com.ikangtai.bluetoothsdk.BleCommand}
+             */
+            LogUtils.d("onReceiveCommandData:" + type + "  " + state + " " + value);
             appendConsoleContent(type + " command sending " + state);
         }
     };
@@ -188,13 +194,6 @@ public class HomeFragment extends Fragment {
                 scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_TIME);
             }
         });
-        //Sync phone time to Bluetooth device
-        fragmentHomeBinding.btnSyncTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_TIME);
-            }
-        });
         //Sync unit c to Bluetooth device
         fragmentHomeBinding.btnSyncUnitC.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -268,7 +267,8 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * Before the scan starts, you need to check the positioning service switch above 6.0, the positioning authority of the system above 6.0, and the Bluetooth switch
+     * Before the scan starts, you need to check the positioning service switch above 6.0,
+     * the positioning authority of the system above 6.0, and the Bluetooth switch
      *
      * @return
      */
@@ -332,10 +332,10 @@ public class HomeFragment extends Fragment {
             if (action != null && action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                 if (state == BluetoothAdapter.STATE_OFF) {
-                    Log.d("ble", "Bluetooth is ff");
+                    LogUtils.d("Bluetooth is off");
                     appendConsoleContent("Bluetooth off");
                 } else if (state == BluetoothAdapter.STATE_ON) {
-                    Log.d("ble", "Bluetooth is on");
+                    LogUtils.d("Bluetooth is on");
                     appendConsoleContent("Bluetooth is on");
                 }
             }
