@@ -84,7 +84,6 @@ public class HomeFragment extends Fragment {
                 homeViewModel.getIsSearching().setValue(false);
                 homeViewModel.getIsConnecting().setValue(false);
                 homeViewModel.getIsConnect().setValue(true);
-                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT_C);
             } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
                 appendConsoleContent("Device disconnected " + macAddress);
                 homeViewModel.getIsSearching().setValue(false);
