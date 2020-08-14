@@ -1,2 +1,2 @@
-include ':app', ':ScBluetoothLib'
+include ':app'/*, ':ScBluetoothLib'*/
 rootProject.name='ScBluetoothSdkDemo_Android'

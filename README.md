@@ -1,4 +1,8 @@
 # ScBluetoothSdkDemo_Android
+
+## Demo
+
+<https://github.com/iKangtai/ScBluetoothSdkDemo_Android.git>
 ## Access Guide
 ### SDK features
 
@@ -9,7 +13,16 @@
 | Connect Shecare forehead thermometer to synchronize data&nbsp;&nbsp;| Connect the forehead thermometer to synchronize data and get the firmware version number |
 
 ### Integrated SDK
-1.The first way,to copy the SDK aar file to the app/libs/ directory of the project, and then configure gradle
+1.The first way
+Add the new maven warehouse address of Bluetooth SDK in the buildscript and allprojects sections of the project build.gradle configuration script:
+```java
+	maven { url 'https://dl.bintray.com/ikangtaijcenter123/ikangtai' }
+```
+Add the statistics SDK library dependency in the dependencies section of the project App corresponding build.gradle configuration script:
+```java
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.0.3'
+```
+2.The second way,to copy the SDK aar file to the app/libs/ directory of the project, and then configure gradle
 ```java
         android {
             repositories {
@@ -20,10 +33,10 @@
         }
 
         dependencies {
-            implementation(name: 'scbluetoothlib-release-v1.0.0', ext: 'aar')
+            implementation(name: 'scbluetoothlib-release-v1.0.3', ext: 'aar')
         }
 ```
-2.The second way,to copy the ScBluetoothLib module configuration of Demo to the project, and then add the implementation project (':ScBluetoothLib') to establish the dependency
+3.The third way,to copy the ScBluetoothLib module configuration of Demo to the project, and then add the implementation project (':ScBluetoothLib') to establish the dependency
 
 ### Permission granted
 
@@ -249,6 +262,7 @@ Every time the SDK interface is called, a correct or incorrect return code may b
 > When the thermometer is not connected, the sending command will directly return an error code. When a command is sent during the connection process, the command in the command queue will be called after the connection is successful. The SDK processes one instruction at a time and sends multiple identical instructions at the same time, and the SDK executes it only once. Send multiple different instructions at the same time, the SDK will be stored in the instruction queue and executed in sequence.
 - ACK command
 > When receiving the temperature data, the SDK needs to reply the "SYNC_ACK command" of the thermometer, and bring the number of the current received. When the synchronized temperature data is greater than 10, it will be divided into a group of 10 data. Normally, this instruction is processed internally by the SDK and no additional processing is required. Sending this command by the SDK may cause repeated temperature data to be received.
+If you really want to call the ACK instruction externally, you need to modify Config, new Config.Builder().forceOutsideSendAck(true), and then call scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SEND_TEMP_ACK, scPeripheralDataList.size());
 - SDK operations need to be in the UI thread
 > Currently, when the SDK calls back data, it will actively switch to the UI thread
 - Failed to set temperature unit, failed to synchronize time

@@ -62,7 +62,8 @@ public class HomeFragment extends Fragment {
                         appendConsoleContent(temperature.getDate() + "  " + temperature.getTemp());
                     }
                 }
-                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SEND_TEMP_ACK, scPeripheralDataList.size());
+                //need to set new Config.Builder().forceOutsideSendAck(true).build(),then use ack command
+                //scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SEND_TEMP_ACK, scPeripheralDataList.size());
             } else {
                 appendConsoleContent(getString(R.string.not_data_record));
             }
@@ -129,7 +130,7 @@ public class HomeFragment extends Fragment {
          * 1. {@link Config.Builder#logWriter(Writer)}
          * 2. {@link Config.Builder#logFilePath(String)}
          */
-        Config config = new Config.Builder().logWriter(logWriter).build();
+        Config config = new Config.Builder().logWriter(logWriter).forceOutsideSendAck(false).build();
         //Config config = new Config.Builder().logFilePath(logFilePath).build();
         //sdk init
         scPeripheralManager.init(getContext(), config);

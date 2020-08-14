@@ -37,7 +37,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     implementation 'com.hjq:xxpermissions:3.6'
-    implementation project(':ScBluetoothLib')
-//    api 'com.ikangtai.bluetoothsdk:ScBluetoothLib:1.0'
+    //implementation project(':ScBluetoothLib')
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.0.3'
 
 }
