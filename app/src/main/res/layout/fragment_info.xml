@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.example.blesdkdemo.InfoViewModel" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/menu_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ViewStub
+                android:id="@+id/thermometer_menu_layout_vs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout="@layout/thermometer_menu_layout"></ViewStub>
+
+            <ViewStub
+                android:id="@+id/normal_thermometer_menu_layout_vs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout="@layout/thermometer_menu_layout"></ViewStub>
+
+            <ViewStub
+                android:id="@+id/ewq_menu_layout_vs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout="@layout/ewq_menu_layout"></ViewStub>
+
+            <ViewStub
+                android:id="@+id/aky3_menu_layout_vs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout="@layout/aky3_menu_layout"></ViewStub>
+
+            <ViewStub
+                android:id="@+id/aky4_menu_layout_vs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout="@layout/aky4_menu_layout"></ViewStub>
+        </RelativeLayout>
+
+        <ScrollView
+            android:id="@+id/console_scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            android:layout_below="@+id/menu_view"
+            >
+
+            <TextView
+                android:id="@+id/tv_console_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="4dp"
+                android:text="@{model.consoleContent.toString()}" />
+
+        </ScrollView>
+
+        <Button
+            android:id="@+id/connect_device_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="32dp"
+            android:text="@string/connect_device"
+            android:visibility="@{model.isConnect||model.isConnecting ? View.GONE:View.VISIBLE}" />
+    </RelativeLayout>
+</layout>
+

@@ -34,5 +34,9 @@ public class MyApplication extends Application {
         public String getLastDeviceAddress() {
             return PreferenceManager.getDefaultSharedPreferences(context).getString("lastDeviceAddress", "");
         }
+
+        public void saveLastDeviceAddress(String macAddress) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putString("lastDeviceAddress", macAddress).commit();
+        }
     }
 }

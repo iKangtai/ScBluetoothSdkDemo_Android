@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ScBleSdkDemo</string>
+    <string name="app_name">ScBleSdkAndroid</string>
     <string name="unbind_success">解绑成功</string>
     <string name="connect_device">连接体温计</string>
     <string name="stop_scan">停止扫描</string>
     <string name="connect_state">获取连接状态</string>
     <string name="unbind_failed">解绑失败</string>
     <string name="scan_device">查找设备</string>
-    <string name="request_location_premisson">扫描蓝牙设备需要开启定位功能权限</string>
     <string name="tips">提示</string>
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
+    <string name="request_location_premisson">扫描蓝牙设备需要开启定位功能权限</string>
     <string name="location_service_turn_on">定位服务已开启</string>
     <string name="location_service_turn_off">定位服务未开启</string>
     <string name="request_location_premisson_tips">请打开手机蓝牙，否则无法连接体温计</string>
@@ -25,4 +25,18 @@
     <string name="last_used">上次使用</string>
     <string name="permission_denied">缺少权限</string>
     <string name="not_data_record">未同步到记录</string>
+    <string name="get_time">获取时间</string>
+    <string name="get_measure_time">获取测温和预热时间</string>
+    <string name="set_measuring_time">设置测温时间</string>
+    <string name="set_preheat_time">设置预热时间</string>
+    <string name="get_history_data">获取历史数据</string>
+    <string name="clear_history_data">清除历史数据</string>
+    <string name="input_measure_time">请输入测温时长</string>
+    <string name="input_preheat_time">请输入预热时长</string>
+    <string name="get_measure_mode">获取测温模式</string>
+    <string name="set_measure_mode">设置测温模式</string>
+    <string name="get_unit">获取温度单位</string>
+    <string name="get_power">获取电量</string>
+    <string name="ota_upgrade">OTA升级</string>
+    <string name="oad_upgrade">OAD升级</string>
 </resources>

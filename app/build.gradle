@@ -38,6 +38,6 @@ dependencies {
 
     implementation 'com.hjq:xxpermissions:3.6'
     //implementation project(':ScBluetoothLib')
-    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.0.5'
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.0.8'
 
 }

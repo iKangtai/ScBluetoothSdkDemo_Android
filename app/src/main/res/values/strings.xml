@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ScBleSdkDemo</string>
+    <string name="app_name">ScBleSdkAndroid</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -21,10 +21,10 @@
     <string name="connect_state">Connection status</string>
     <string name="unbind_failed">Unbind failed</string>
     <string name="scan_device">Find device</string>
-    <string name="request_location_premisson">Scanning Bluetooth device needs to open the location function permission.</string>
     <string name="tips">Tips</string>
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
+    <string name="request_location_premisson">Scanning Bluetooth device needs to open the location function permission.</string>
     <string name="location_service_turn_on">The location service is enabled</string>
     <string name="location_service_turn_off">The location service is not enabled</string>
     <string name="request_location_premisson_tips">Please turn on the Bluetooth of your phone, otherwise you cannot connect the thermometer.</string>
@@ -39,4 +39,18 @@
     <string name="last_used">Last used</string>
     <string name="permission_denied">Permission denied</string>
     <string name="not_data_record">not data</string>
+    <string name="get_time">Get time</string>
+    <string name="get_measure_time">get measure time</string>
+    <string name="set_measuring_time">set measuring time</string>
+    <string name="set_preheat_time">set preheat time</string>
+    <string name="get_history_data">get history data</string>
+    <string name="clear_history_data">clear history data</string>
+    <string name="input_measure_time">input measuring time</string>
+    <string name="input_preheat_time">input preheat time</string>
+    <string name="get_measure_mode">get measure mode</string>
+    <string name="set_measure_mode">set measure mode</string>
+    <string name="get_unit">get unit</string>
+    <string name="get_power">get power</string>
+    <string name="ota_upgrade">OTA Upgrade</string>
+    <string name="oad_upgrade">OAD Upgrade</string>
 </resources>
