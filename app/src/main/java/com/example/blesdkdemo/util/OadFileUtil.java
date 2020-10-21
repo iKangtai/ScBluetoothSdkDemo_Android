@@ -17,6 +17,7 @@ import java.io.File;
  * @author xiongyl 2020/10/16 0:00
  */
 public class OadFileUtil {
+    //private String downloadURL="https://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/A31_danger";
     private String downloadURL ="https://api.premom.com/firmwares/third";
 //    private String downloadURL = "http://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/A31";
     private Context context;

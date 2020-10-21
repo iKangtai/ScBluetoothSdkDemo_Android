@@ -589,6 +589,10 @@ public class InfoFragment extends Fragment {
                         String filePathTemp = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileNameTemp(oadFileUtil.getOadFileType());
                         new File(filePathTemp).renameTo(new File(filePath));
                     }
+                    if (!new File(filePath).exists()){
+                        LogUtils.i("OADMainActivity OAD, download file fail");
+                        return;
+                    }
                     LogUtils.i("OADMainActivity OAD, filePath = " + filePath);
 
                     BleCommandData bleCommandData = new BleCommandData();
