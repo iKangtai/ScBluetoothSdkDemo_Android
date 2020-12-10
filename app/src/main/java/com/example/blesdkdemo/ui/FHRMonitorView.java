@@ -505,11 +505,11 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         final FHRMonitorView fhrMonitorView;
 
         public static class FHRMonitorView$HistoryThread$1 implements Runnable {
-            final /* synthetic */ FHRMonitorView.HistoryThread historyThread;
+            final /* synthetic */ HistoryThread historyThread;
             final /* synthetic */ int val$fhr;
             final /* synthetic */ int val$fhr_index;
 
-            FHRMonitorView$HistoryThread$1(FHRMonitorView.HistoryThread historyThread, int i, int i2) {
+            FHRMonitorView$HistoryThread$1(HistoryThread historyThread, int i, int i2) {
                 this.historyThread = historyThread;
                 this.val$fhr_index = i;
                 this.val$fhr = i2;
