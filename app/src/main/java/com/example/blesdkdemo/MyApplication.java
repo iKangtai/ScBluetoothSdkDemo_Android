@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
+import com.example.blesdkdemo.util.FontUtil;
+
 /**
  * desc
  *
@@ -22,6 +24,7 @@ public class MyApplication extends Application {
         super.onCreate();
         appPreferences = new AppPreferences(this);
         instance = this;
+        FontUtil.init(this);
     }
 
     public static class AppPreferences {

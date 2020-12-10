@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -101,9 +102,6 @@ public class HomeFragment extends Fragment {
                             for (int i = 0; i < deviceList.size(); i++) {
                                 ScPeripheral scBluetoothDevice = deviceList.get(i);
                                 if (!mDeviceList.contains(scBluetoothDevice)) {
-//                                    if (scBluetoothDevice.getDeviceType() == BleTools.TYPE_UNKNOWN) {
-//                                        continue;
-//                                    }
                                     mDeviceList.add(scBluetoothDevice);
                                     fragmentHomeBinding.recyclerView.getAdapter().notifyItemInserted(mDeviceList.size() - 1);
                                 }
@@ -111,6 +109,7 @@ public class HomeFragment extends Fragment {
                         }
                     }
                 });
+                bleTimeOut();
             }
         });
         //Stop scan devices
@@ -125,13 +124,21 @@ public class HomeFragment extends Fragment {
         DeviceListAdapter deviceListAdapter = new DeviceListAdapter(mDeviceList);
         deviceListAdapter.setItemClickListener(new DeviceListAdapter.ItemClickListener() {
             @Override
-            public void onClick(ScPeripheral scBluetoothDevice) {
+            public void onClick(ScPeripheral scPeripheral) {
                 homeViewModel.getIsSearching().setValue(false);
                 scPeripheralManager.stopScan();
-                String macAddress = scBluetoothDevice.getMacAddress();
+                String macAddress = scPeripheral.getMacAddress();
                 MyApplication.getInstance().appPreferences.saveLastDeviceAddress(macAddress);
-                Intent intent=new Intent(getContext(), InfoActivity.class);
-                intent.putExtra("connectDevice",scBluetoothDevice);
+                Intent intent = null;
+                if (scPeripheral.getDeviceType() == BleTools.TYPE_UNKNOWN) {
+                    appendConsoleContent(getString(R.string.unsupported_device));
+                    return;
+                } else if (scPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY) {
+                    intent = new Intent(getContext(), BleActivity.class);
+                } else {
+                    intent = new Intent(getContext(), InfoActivity.class);
+                }
+                intent.putExtra("connectDevice", scPeripheral);
                 startActivity(intent);
             }
         });
@@ -142,6 +149,21 @@ public class HomeFragment extends Fragment {
 
     private void appendConsoleContent(String massage) {
         ToastUtils.show(getContext(), massage);
+    }
+
+    private void bleTimeOut() {
+        new Handler().postDelayed(new Runnable() {
+            /* class com.laijiayiliao.myapplication.ui.fragment.MonitorBLEFragment.AnonymousClass1 */
+            public void run() {
+                if (homeViewModel.getIsSearching().getValue()) {
+                    homeViewModel.getIsSearching().setValue(false);
+                    scPeripheralManager.stopScan();
+                    if (mDeviceList.isEmpty()) {
+                        appendConsoleContent(getString(R.string.ble_scan_timeout));
+                    }
+                }
+            }
+        }, 20000);
     }
 
     /**

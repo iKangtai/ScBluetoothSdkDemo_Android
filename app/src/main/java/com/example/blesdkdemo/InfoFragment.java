@@ -28,7 +28,6 @@ import com.hjq.permissions.OnPermission;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 import com.ikangtai.bluetoothsdk.BleCommand;
-import com.ikangtai.bluetoothsdk.Config;
 import com.ikangtai.bluetoothsdk.ScPeripheralManager;
 import com.ikangtai.bluetoothsdk.listener.ReceiveDataListenerAdapter;
 import com.ikangtai.bluetoothsdk.model.BleCommandData;
@@ -36,15 +35,10 @@ import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 import com.ikangtai.bluetoothsdk.model.ScPeripheralData;
 import com.ikangtai.bluetoothsdk.util.BleCode;
 import com.ikangtai.bluetoothsdk.util.BleTools;
-import com.ikangtai.bluetoothsdk.util.FileUtil;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
 import com.ikangtai.bluetoothsdk.util.ToastUtils;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -81,7 +75,7 @@ public class InfoFragment extends Fragment {
         @Override
         public void onReceiveError(String macAddress, int code, String msg) {
             /**
-             * The code see {@link com.ikangtai.bluetoothsdk.util.BleCode}
+             * The code see {@link BleCode}
              */
             LogUtils.d("onReceiveError:" + code + "  " + msg);
             checkConnectDialog();
@@ -117,54 +111,58 @@ public class InfoFragment extends Fragment {
                 dialog = null;
             }
             LogUtils.d("onReceiveCommandData:" + type + "  " + resultCode + " " + value);
-            appendConsoleContent(type + " command send result " + resultCode);
-            if (type == BleCommand.GET_THERMOMETER_OAD_IMG_TYPE) {
-                appendConsoleContent("Found newer firmware version, download to update!");
-                oadFileUtil = new OadFileUtil(getContext());
-                oadFileUtil.handleFirmwareImgABMsg(Integer.valueOf(value));
-            } else if (type == BleCommand.THERMOMETER_OAD_UPGRADE) {
-                switch (resultCode) {
-                    case BleCommand.ResultCode.RESULT_OAD_START:
-                        appendConsoleContent("device oad start");
-                        break;
-                    case BleCommand.ResultCode.RESULT_OAD_PROGRESS:
-                        if (Integer.valueOf(value) < 99) {
-                            appendConsoleContent(value + "% completed");
-                        } else {
-                            appendConsoleContent(value + "% completed,verifying the success of the upgrade...");
-                        }
-                        break;
-                    case BleCommand.ResultCode.RESULT_OAD_END:
-                        appendConsoleContent("device oad end");
-                        showErrorMessage("OAD finish, please restart device to check the success of the upgrade...");
-                        break;
-                    case BleCommand.ResultCode.RESULT_OAD_FAIL:
-                        String errorMessage = "OAD failed, please restart the thermometer to start again";
-                        if (!TextUtils.isEmpty(value)) {
-                            errorMessage = BleCode.oadErrors.get(Integer.decode(value));
-                        }
-                        showErrorMessage(errorMessage);
-                        break;
-                }
-            } else if (type == BleCommand.THERMOMETER_OTA_UPGRADE) {
-                switch (resultCode) {
-                    case BleCommand.ResultCode.RESULT_OTA_START:
-                        appendConsoleContent("device ota start");
-                        break;
-                    case BleCommand.ResultCode.RESULT_OTA_FAIL:
-                        String errorMessage = "OTA failed, please restart the thermometer to start again";
-                        if (!TextUtils.isEmpty(value)) {
-                            errorMessage = BleCode.oTaErrors.get(Integer.decode(value));
-                        }
-                        showErrorMessage(errorMessage);
-                        break;
-                }
-            } else if (resultCode == BleCommand.ResultCode.RESULT_FAIL) {
+            appendConsoleContent(type + " command send resultCode:" + resultCode + " value:" + value);
+            if (resultCode == BleCommand.ResultCode.RESULT_FAIL) {
                 String errorMessage = "send command failed, please restart the thermometer to start again";
                 if (!TextUtils.isEmpty(value)) {
                     errorMessage = BleCode.getMessage(Integer.decode(value));
                 }
                 showErrorMessage(errorMessage);
+            } else if (scPeripheral.getDeviceType() == BleTools.TYPE_AKY_3 || scPeripheral.getDeviceType() == BleTools.TYPE_AKY_4) {
+                if (type == BleCommand.GET_THERMOMETER_OAD_IMG_TYPE) {
+                    appendConsoleContent("Found newer firmware version, download to update!");
+                    oadFileUtil = new OadFileUtil(getContext());
+                    oadFileUtil.handleFirmwareImgABMsg(Integer.valueOf(value));
+                }
+            } else if (scPeripheral.getDeviceType() == BleTools.TYPE_SMART_THERMOMETER) {
+                if (type == BleCommand.THERMOMETER_OAD_UPGRADE) {
+                    switch (resultCode) {
+                        case BleCommand.ResultCode.RESULT_OAD_START:
+                            appendConsoleContent("device oad start");
+                            break;
+                        case BleCommand.ResultCode.RESULT_OAD_PROGRESS:
+                            if (Integer.valueOf(value) < 99) {
+                                appendConsoleContent(value + "% completed");
+                            } else {
+                                appendConsoleContent(value + "% completed,verifying the success of the upgrade...");
+                            }
+                            break;
+                        case BleCommand.ResultCode.RESULT_OAD_END:
+                            appendConsoleContent("device oad end");
+                            showErrorMessage("OAD finish, please restart device to check the success of the upgrade...");
+                            break;
+                        case BleCommand.ResultCode.RESULT_OAD_FAIL:
+                            String errorMessage = "OAD failed, please restart the thermometer to start again";
+                            if (!TextUtils.isEmpty(value)) {
+                                errorMessage = BleCode.oadErrors.get(Integer.decode(value));
+                            }
+                            showErrorMessage(errorMessage);
+                            break;
+                    }
+                } else if (type == BleCommand.THERMOMETER_OTA_UPGRADE) {
+                    switch (resultCode) {
+                        case BleCommand.ResultCode.RESULT_OTA_START:
+                            appendConsoleContent("device ota start");
+                            break;
+                        case BleCommand.ResultCode.RESULT_OTA_FAIL:
+                            String errorMessage = "OTA failed, please restart the thermometer to start again";
+                            if (!TextUtils.isEmpty(value)) {
+                                errorMessage = BleCode.oTaErrors.get(Integer.decode(value));
+                            }
+                            showErrorMessage(errorMessage);
+                            break;
+                    }
+                }
             }
         }
     };
@@ -207,22 +205,6 @@ public class InfoFragment extends Fragment {
         macAddress = scPeripheral.getMacAddress();
         infoViewModel.getDeviceType().setValue(scPeripheral.getDeviceType());
         scPeripheralManager = ScPeripheralManager.getInstance();
-        String logFilePath = new File(FileUtil.createRootPath(getContext()), "log_test.txt").getAbsolutePath();
-        BufferedWriter logWriter = null;
-        try {
-            logWriter = new BufferedWriter(new FileWriter(logFilePath, true), 2048);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        /**
-         * There are two ways to configure log
-         * 1. {@link Config.Builder#logWriter(Writer)}
-         * 2. {@link Config.Builder#logFilePath(String)}
-         */
-        Config config = new Config.Builder().logWriter(logWriter).forceOutsideSendAck(false).build();
-        //Config config = new Config.Builder().logFilePath(logFilePath).build();
-        //sdk init
-        scPeripheralManager.init(getContext(), config);
 
         //Register to receive Bluetooth switch broadcast
         getActivity().registerReceiver(receiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
@@ -422,7 +404,7 @@ public class InfoFragment extends Fragment {
         showConnectDevice();
     }
 
-    private void showConnectDevice(){
+    private void showConnectDevice() {
         appendConsoleContent("Prepare to connect the device " + macAddress);
         if (!checkBleFeatures()) {
             return;
@@ -462,6 +444,9 @@ public class InfoFragment extends Fragment {
                 break;
             case BleTools.TYPE_AKY_4:
                 getView().findViewById(R.id.aky4_menu_layout_vs).setVisibility(View.VISIBLE);
+                break;
+            case BleTools.TYPE_IFEVER_TEM_TICK:
+                getView().findViewById(R.id.tem_tick_menu_layout_vs).setVisibility(View.VISIBLE);
                 break;
         }
         btnSyncData = getView().findViewById(R.id.btn_sync_data);
@@ -589,7 +574,7 @@ public class InfoFragment extends Fragment {
                         String filePathTemp = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileNameTemp(oadFileUtil.getOadFileType());
                         new File(filePathTemp).renameTo(new File(filePath));
                     }
-                    if (!new File(filePath).exists()){
+                    if (!new File(filePath).exists()) {
                         LogUtils.i("OADMainActivity OAD, download file fail");
                         return;
                     }

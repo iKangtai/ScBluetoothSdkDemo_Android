@@ -49,6 +49,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout="@layout/aky4_menu_layout"></ViewStub>
+
+            <ViewStub
+                android:id="@+id/tem_tick_menu_layout_vs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout="@layout/tem_tick_menu_layout"></ViewStub>
         </RelativeLayout>
 
         <ScrollView

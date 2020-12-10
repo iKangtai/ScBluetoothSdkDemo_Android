@@ -19,7 +19,9 @@ import java.io.File;
 public class OadFileUtil {
     //private String downloadURL="https://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/A31_danger";
 //    private String downloadURL ="https://api.premom.com/firmwares/third";
-    private String downloadURL = "http://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/A31";
+    private String downloadURL = "https://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/A31";
+    //https://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/A31/A31_3.67.bin
+    //https://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/A31/B31_3.67.bin
     private Context context;
     private long downloadId;
     private int oadFileType;
@@ -32,11 +34,11 @@ public class OadFileUtil {
         this.oadFileType = imgType;
         int firmwareImgAB = imgType;
         if (firmwareImgAB == BleParam.FIRMWARE_IMAGE_REVERSION_A) {
-            downloadURL += "/Bthermometer.bin";
+            downloadURL += "/B31_3.67.bin";
             LogUtils.i("目前固件使用版本A，下载升级固件B.");
             downloadFirmwareImage(BleParam.FIRMWARE_IMAGE_REVERSION_A);
         } else if (firmwareImgAB == BleParam.FIRMWARE_IMAGE_REVERSION_B) {
-            downloadURL += "/Athermometer.bin";
+            downloadURL += "/A31_3.67.bin";
             LogUtils.i("目前固件使用版本B，下载升级固件A.");
             downloadFirmwareImage(BleParam.FIRMWARE_IMAGE_REVERSION_B);
         } else {
