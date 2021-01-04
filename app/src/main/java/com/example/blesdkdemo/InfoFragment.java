@@ -75,7 +75,7 @@ public class InfoFragment extends Fragment {
         @Override
         public void onReceiveError(String macAddress, int code, String msg) {
             /**
-             * The code see {@link BleCode}
+             * The code see {@link com.ikangtai.bluetoothsdk.util.BleCode}
              */
             LogUtils.d("onReceiveError:" + code + "  " + msg);
             checkConnectDialog();
@@ -119,13 +119,26 @@ public class InfoFragment extends Fragment {
                 }
                 showErrorMessage(errorMessage);
             } else if (scPeripheral.getDeviceType() == BleTools.TYPE_AKY_3 || scPeripheral.getDeviceType() == BleTools.TYPE_AKY_4) {
+                if (type == BleCommand.THERMOMETER_OTA_UPGRADE) {
+                    switch (resultCode) {
+                        case BleCommand.ResultCode.RESULT_OTA_START:
+                            appendConsoleContent("device ota start");
+                            break;
+                        case BleCommand.ResultCode.RESULT_OTA_FAIL:
+                            String errorMessage = "OTA failed, please restart the thermometer to start again";
+                            if (!TextUtils.isEmpty(value)) {
+                                errorMessage = BleCode.oTaErrors.get(Integer.decode(value));
+                            }
+                            showErrorMessage(errorMessage);
+                            break;
+                    }
+                }
+            } else if (scPeripheral.getDeviceType() == BleTools.TYPE_SMART_THERMOMETER) {
                 if (type == BleCommand.GET_THERMOMETER_OAD_IMG_TYPE) {
                     appendConsoleContent("Found newer firmware version, download to update!");
                     oadFileUtil = new OadFileUtil(getContext());
                     oadFileUtil.handleFirmwareImgABMsg(Integer.valueOf(value));
-                }
-            } else if (scPeripheral.getDeviceType() == BleTools.TYPE_SMART_THERMOMETER) {
-                if (type == BleCommand.THERMOMETER_OAD_UPGRADE) {
+                } else if (type == BleCommand.THERMOMETER_OAD_UPGRADE) {
                     switch (resultCode) {
                         case BleCommand.ResultCode.RESULT_OAD_START:
                             appendConsoleContent("device oad start");
@@ -145,19 +158,6 @@ public class InfoFragment extends Fragment {
                             String errorMessage = "OAD failed, please restart the thermometer to start again";
                             if (!TextUtils.isEmpty(value)) {
                                 errorMessage = BleCode.oadErrors.get(Integer.decode(value));
-                            }
-                            showErrorMessage(errorMessage);
-                            break;
-                    }
-                } else if (type == BleCommand.THERMOMETER_OTA_UPGRADE) {
-                    switch (resultCode) {
-                        case BleCommand.ResultCode.RESULT_OTA_START:
-                            appendConsoleContent("device ota start");
-                            break;
-                        case BleCommand.ResultCode.RESULT_OTA_FAIL:
-                            String errorMessage = "OTA failed, please restart the thermometer to start again";
-                            if (!TextUtils.isEmpty(value)) {
-                                errorMessage = BleCode.oTaErrors.get(Integer.decode(value));
                             }
                             showErrorMessage(errorMessage);
                             break;
@@ -368,7 +368,11 @@ public class InfoFragment extends Fragment {
                 public void onClick(View v) {
                     BleCommandData bleCommandData = new BleCommandData();
                     bleCommandData.setOtaTime(180);
-                    bleCommandData.setOtaImgFilepath(getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/YC-399B-TEST-V0.img");
+                    if (scPeripheral.getDeviceType() == BleTools.TYPE_AKY_3) {
+                        bleCommandData.setOtaImgFilepath("file:///android_asset/img/yc_v4.06.img");
+                    } else if (scPeripheral.getDeviceType() == BleTools.TYPE_AKY_4) {
+                        bleCommandData.setOtaImgFilepath("file:///android_asset/img/YC-399B-TEST-V0.img");
+                    }
                     scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.THERMOMETER_OTA_UPGRADE, bleCommandData);
                 }
             });
