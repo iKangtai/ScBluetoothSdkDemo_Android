@@ -164,6 +164,17 @@ Before starting to scan, you need to check the location service switch above 6.0
         public void onReceiveCommandData(String macAddress, int type, boolean state, String value) {
             LogUtils.d("onReceiveCommandData:" + type + "  " + state + " " + value);
         }
+
+        /**
+          *
+          * @param macAddress
+          * @param command type，type see {@link com.ikangtai.bluetoothsdk.BleCommand}
+          * @param The status returned by the execution command will return true or false.
+          * @param The result value byte[]data returned by executing the command,data stream from fetal heart rate monitoring.
+          */
+        public void onReceiveCommandData(String macAddress, int type, boolean state, byte[] value) {
+            LogUtils.d("onReceiveCommandData:" + type + "  " + resultCode + " " + BleUtils.byte2hex(value));
+        }
     };
   scPeripheralManager.connectPeripheral(macAddress, receiveDataListenerAdapter);
 ```
