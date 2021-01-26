@@ -3,6 +3,10 @@
 ## Demo
 
 <https://github.com/iKangtai/ScBluetoothSdkDemo_Android.git>
+
+## :large_blue_circle: Internationalization
+English | [中文文档](README_zh.md)
+
 ## Access Guide
 ### SDK features
 
@@ -230,7 +234,7 @@ List of commands supported by the SDK:
 | CLEAR_THERMOMETER_DATA = 14	  | Clear thermometer data |
 | GET_DEVICE_HISTORY_DATA = 15	  | Get historical data of clinical thermometer |
 | SEND_HISTORY_DATA_ACK = 16	  | send historical data of clinical thermometer ack |
-| SYNC_THERMOMETER_UNIT = 17	  | hange the thermometer unit |
+| SYNC_THERMOMETER_UNIT = 17	  | sync the thermometer unit |
 | THERMOMETER_OTA_UPGRADE = 18	  | device ota upgrade |
 | GET_THERMOMETER_OAD_IMG_TYPE = 19	  | get device oad img type |
 | THERMOMETER_OAD_UPGRADE = 20	  | device oad upgrade |
