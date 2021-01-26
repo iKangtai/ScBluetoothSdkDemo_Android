@@ -1,4 +1,4 @@
-package com.example.blesdkdemo;
+package com.example.blesdkdemo.ui;
 
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 
+import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.databinding.FragmentInfoBinding;
 import com.example.blesdkdemo.util.OadFileUtil;
 import com.hjq.permissions.OnPermission;
@@ -75,7 +76,7 @@ public class InfoFragment extends Fragment {
         @Override
         public void onReceiveError(String macAddress, int code, String msg) {
             /**
-             * The code see {@link com.ikangtai.bluetoothsdk.util.BleCode}
+             * The code see {@link BleCode}
              */
             LogUtils.d("onReceiveError:" + code + "  " + msg);
             checkConnectDialog();
@@ -573,9 +574,9 @@ public class InfoFragment extends Fragment {
                 long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -10001);
                 if (oadFileUtil != null && oadFileUtil.getDownloadId() == downloadId) {
                     LogUtils.i("The OAD binary file download is complete, and the DFU upgrade begins!");
-                    String filePath = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileName(oadFileUtil.getOadFileType());
+                    String filePath = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileName(oadFileUtil.getOadFileType(),oadFileUtil.getVersion());
                     if (downloadId != -10001) {
-                        String filePathTemp = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileNameTemp(oadFileUtil.getOadFileType());
+                        String filePathTemp = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileNameTemp(oadFileUtil.getOadFileType(),oadFileUtil.getVersion());
                         new File(filePathTemp).renameTo(new File(filePath));
                     }
                     if (!new File(filePath).exists()) {

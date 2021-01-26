@@ -1,4 +1,4 @@
-package com.example.blesdkdemo.db;
+package com.example.blesdkdemo.txy.db;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 

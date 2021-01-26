@@ -1,9 +1,10 @@
-package com.example.blesdkdemo;
+package com.example.blesdkdemo.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.blesdkdemo.BleApplication;
 import com.example.blesdkdemo.databinding.DeviceListItemBinding;
 import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 
@@ -41,7 +42,7 @@ public class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.De
     public void onBindViewHolder(@NonNull DeviceListViewHolder holder, final int position) {
 
         holder.deviceListItemBinding.setDevice(devices.get(position));
-        holder.deviceListItemBinding.setIsLastConnectedDevice(devices.get(position).getMacAddress() == MyApplication.getInstance().appPreferences.getLastDeviceAddress());
+        holder.deviceListItemBinding.setIsLastConnectedDevice(devices.get(position).getMacAddress() == BleApplication.getInstance().appPreferences.getLastDeviceAddress());
         holder.deviceListItemBinding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

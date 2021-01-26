@@ -12,7 +12,7 @@
         android:background="@color/white"
         android:orientation="vertical">
 
-        <com.example.blesdkdemo.ui.FHRMonitorView
+        <com.example.blesdkdemo.txy.ui.FHRMonitorView
             android:id="@+id/monitorView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -85,16 +85,17 @@
                     android:layout_height="match_parent"
                     android:scaleType="centerInside"
                     android:src="@drawable/ic_fhr"
-                    android:visibility="invisible" />
+                    android:visibility="invisible"
+                    android:tint="@color/app_primary_dark_color"/>
             </FrameLayout>
 
             <TextView
                 android:id="@+id/tv_FHR"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
-                android:background="@drawable/ic_fhr_text"
+                android:text="- - -"
                 android:gravity="center"
-                android:textColor="@color/title_background"
+                android:textColor="@color/app_primary_dark_color"
                 android:textSize="60sp" />
 
             <TextView

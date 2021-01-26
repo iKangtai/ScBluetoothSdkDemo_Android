@@ -23,8 +23,7 @@
                 android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="2dp"
+                android:layout_centerInParent="true"
                 android:text="@string/history"
                 android:textColor="@color/white"
                 android:textSize="24dp" />
@@ -33,11 +32,12 @@
                 android:id="@+id/iv_back"
                 android:layout_width="48dp"
                 android:layout_height="36dp"
+                android:layout_centerVertical="true"
                 android:padding="8dp"
                 android:src="@drawable/ic_back" />
         </RelativeLayout>
 
-        <com.example.blesdkdemo.ui.FHRMonitorView
+        <com.example.blesdkdemo.txy.ui.FHRMonitorView
             android:id="@+id/monitorView"
             android:layout_width="match_parent"
             android:layout_height="380dp"

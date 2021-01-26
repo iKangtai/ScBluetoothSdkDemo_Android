@@ -1,4 +1,4 @@
-package com.example.blesdkdemo;
+package com.example.blesdkdemo.ui;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -14,7 +14,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.blesdkdemo.BleApplication;
+import com.example.blesdkdemo.R;
+import com.example.blesdkdemo.activity.InfoActivity;
+import com.example.blesdkdemo.adapter.DeviceListAdapter;
 import com.example.blesdkdemo.databinding.FragmentHomeBinding;
+import com.example.blesdkdemo.txy.BleActivity;
 import com.hjq.permissions.OnPermission;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
@@ -41,6 +46,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+/**
+ * 扫描附近蓝牙设备
+ *
+ * @author xiongyl 2020/9/24 0:55
+ */
 public class HomeFragment extends Fragment {
     private ScPeripheralManager scPeripheralManager;
     private List<ScPeripheral> mDeviceList = new ArrayList<>();
@@ -128,7 +138,7 @@ public class HomeFragment extends Fragment {
                 homeViewModel.getIsSearching().setValue(false);
                 scPeripheralManager.stopScan();
                 String macAddress = scPeripheral.getMacAddress();
-                MyApplication.getInstance().appPreferences.saveLastDeviceAddress(macAddress);
+                BleApplication.getInstance().appPreferences.saveLastDeviceAddress(macAddress);
                 Intent intent = null;
                 if (scPeripheral.getDeviceType() == BleTools.TYPE_UNKNOWN) {
                     appendConsoleContent(getString(R.string.unsupported_device));
@@ -153,7 +163,6 @@ public class HomeFragment extends Fragment {
 
     private void bleTimeOut() {
         new Handler().postDelayed(new Runnable() {
-            /* class com.laijiayiliao.myapplication.ui.fragment.MonitorBLEFragment.AnonymousClass1 */
             public void run() {
                 if (homeViewModel.getIsSearching().getValue()) {
                     homeViewModel.getIsSearching().setValue(false);

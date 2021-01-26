@@ -1,8 +1,7 @@
-package com.example.blesdkdemo;
+package com.example.blesdkdemo.txy;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothProfile;
 import android.content.DialogInterface;
 import android.os.Build;
@@ -14,12 +13,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.blesdkdemo.auido.AudioCompress;
-import com.example.blesdkdemo.auido.SoundCard;
-import com.example.blesdkdemo.ui.OnFhrListener;
+import com.example.blesdkdemo.R;
+import com.example.blesdkdemo.txy.ui.OnFhrListener;
 import com.example.blesdkdemo.util.Util;
 import com.ikangtai.bluetoothsdk.BleCommand;
 import com.ikangtai.bluetoothsdk.ScPeripheralManager;
+import com.ikangtai.bluetoothsdk.audio.AudioCompress;
+import com.ikangtai.bluetoothsdk.audio.SoundCard;
 import com.ikangtai.bluetoothsdk.listener.ReceiveDataListenerAdapter;
 import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 import com.ikangtai.bluetoothsdk.model.ScPeripheralData;
@@ -29,53 +29,26 @@ import com.ikangtai.bluetoothsdk.util.LogUtils;
 
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-
+/**
+ * 胎心监护
+ *
+ * @author xiongyl 2020/9/24 0:55
+ */
 public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnClickListener, OnFhrListener {
-    public static final int BLE_TIME_OUT = 5000;
+    private static final String TAG = "MonitorBLEFragment_TAG";
     public static final int REQUEST_CODE_BLE_ENABLE = 1;
-    private static final String TAG = "MainBLEFragment_TAG";
-    private static final int originalSampleFre = 20000;
-    private int deviceNum = 0;
-    private BluetoothGatt gatt;
     private AudioCompress mAudioCompress = new AudioCompress();
     private byte[] mRevDataBuf = new byte[232];
     private final int mRevDataBufMaxLen = 200;
     private int mRevDataLength = 0;
     private SoundCard mSoundCard;
-    private int retryCount = 0;
-    private int timeOutCoefficient = 1;
     private ScPeripheralManager scPeripheralManager;
     private ScPeripheral scPeripheral;
     private String macAddress;
     private ProgressDialog dialog;
-
-    static /* synthetic */ int access$1608(MonitorBLEFragment monitorBLEFragment) {
-        int i = monitorBLEFragment.mRevDataLength;
-        monitorBLEFragment.mRevDataLength = i + 1;
-        return i;
-    }
-
-    static /* synthetic */ int access$408(MonitorBLEFragment monitorBLEFragment) {
-        int i = monitorBLEFragment.deviceNum;
-        monitorBLEFragment.deviceNum = i + 1;
-        return i;
-    }
-
-    static /* synthetic */ int access$608(MonitorBLEFragment monitorBLEFragment) {
-        int i = monitorBLEFragment.retryCount;
-        monitorBLEFragment.retryCount = i + 1;
-        return i;
-    }
-
-    static /* synthetic */ int access$808(MonitorBLEFragment monitorBLEFragment) {
-        int i = monitorBLEFragment.timeOutCoefficient;
-        monitorBLEFragment.timeOutCoefficient = i + 1;
-        return i;
-    }
 
     private ReceiveDataListenerAdapter receiveDataListenerAdapter = new ReceiveDataListenerAdapter() {
 
@@ -110,18 +83,13 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
                     MonitorBLEFragment.this.mSoundCard.stopRecord();
                     MonitorBLEFragment.this.recordEnd(MonitorBLEFragment.this.getResources().getString(R.string.recordEnd_if_disconnected));
                 }
-                if (MonitorBLEFragment.this.gatt != null) {
-                    MonitorBLEFragment.this.gatt.close();
-                    MonitorBLEFragment.this.gatt = null;
-                }
                 mainActivity.setConnectIcon(R.drawable.ble_disconnect);
                 MonitorBLEFragment.this.mRevDataLength = 0;
                 MonitorBLEFragment.this.mRevDataBuf = new byte[232];
                 MonitorBLEFragment.this.isConnected = false;
                 MonitorBLEFragment.this.monitorView.setBreakType(1);
                 MonitorBLEFragment.this.mFHR = 0;
-                MonitorBLEFragment.this.tv_FHR.setText("");
-                MonitorBLEFragment.this.tv_FHR.setBackground(MonitorBLEFragment.this.getResources().getDrawable(R.drawable.ic_fhr_text));
+                MonitorBLEFragment.this.tv_FHR.setText("---");
                 Log.e(MonitorBLEFragment.TAG, "onConnectionStateChange:  断开连接");
                 checkConnectDialog();
             }
@@ -178,7 +146,6 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
     }
 
     @Override
-    // com.laijiayiliao.myapplication.ui.fragment.BaseMonitorFragment, android.support.v4.app.Fragment
     public void onActivityCreated(@Nullable Bundle bundle) {
         super.onActivityCreated(bundle);
         scPeripheral = (ScPeripheral) getActivity().getIntent().getSerializableExtra("connectDevice");
@@ -213,14 +180,12 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
 
 
     @Override
-    // com.laijiayiliao.myapplication.ui.fragment.BaseMonitorFragment, android.support.v4.app.Fragment
     public void onPause() {
         this.mSoundCard.setPause(true);
         super.onPause();
     }
 
     @Override
-    // com.laijiayiliao.myapplication.ui.fragment.BaseMonitorFragment, android.support.v4.app.Fragment
     public void onStop() {
         super.onStop();
         if (isRecording) {
@@ -230,7 +195,6 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
     }
 
     @Override
-    // com.laijiayiliao.myapplication.ui.fragment.BaseMonitorFragment, android.support.v4.app.Fragment
     public void onResume() {
         super.onResume();
         checkPermission();
@@ -244,10 +208,6 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
         this.monitorView.setConnect(false);
         this.mSoundCard.close();
         isRecording = false;
-        if (this.gatt != null) {
-            this.gatt.close();
-            this.gatt = null;
-        }
         Log.e(TAG, "关闭fragment！！");
         if (scPeripheralManager != null) {
             scPeripheralManager.stopScan();
@@ -259,7 +219,7 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
         }
     }
 
-    @Override // com.laijiayiliao.myapplication.ui.monitorView.OnFhrListener
+    @Override
     public void getFHR(int i, int i2) {
         if (isRecording && i2 == -1) {
             disConnect();
@@ -271,8 +231,7 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
             this.tv_FHR.setBackground(null);
             return;
         }
-        this.tv_FHR.setText("");
-        this.tv_FHR.setBackground(getResources().getDrawable(R.drawable.ic_fhr_text));
+        this.tv_FHR.setText("---");
         this.mFHR = 0;
     }
 
@@ -285,59 +244,22 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
     }
 
     private void initAudio() {
-        this.mSoundCard = new SoundCard(Constant.SAMPLING, Constant.ORIGINAL_SAMPLING);
-    }
-
-    /* access modifiers changed from: private */
-    /* access modifiers changed from: public */
-    private void bleTimeOut(@NonNull final String str) {
-        this.mainHandler.postDelayed(new Runnable() {
-            /* class com.laijiayiliao.myapplication.ui.fragment.MonitorBLEFragment.AnonymousClass1 */
-
-            public void run() {
-                if (!MonitorBLEFragment.this.isConnected) {
-                    MonitorBLEFragment.this.mainActivity.setWarning(true, str);
-                    MonitorBLEFragment.this.mainActivity.setWarningOnClickListener(new View.OnClickListener() {
-                        /* class com.laijiayiliao.myapplication.ui.fragment.MonitorBLEFragment.AnonymousClass1.AnonymousClass1 */
-
-                        public void onClick(View view) {
-                            MonitorBLEFragment.this.mainActivity.setWarningOnClickListener(null);
-                            MonitorBLEFragment.this.mainActivity.setWarning(true, MonitorBLEFragment.this.getString(R.string.ble_scan_again));
-                            MonitorBLEFragment.access$608(MonitorBLEFragment.this);
-                            if (MonitorBLEFragment.this.retryCount > 5) {
-                                MonitorBLEFragment.this.showDialog(MonitorBLEFragment.this.getString(R.string.ble_retry));
-                            }
-                        }
-                    });
-                    if (MonitorBLEFragment.this.deviceNum > 9) {
-                        MonitorBLEFragment.this.mainActivity.setWarning(true, MonitorBLEFragment.this.getString(R.string.ble_device_much));
-                        MonitorBLEFragment.access$808(MonitorBLEFragment.this);
-                        MonitorBLEFragment.this.deviceNum = 0;
-                        return;
-                    }
-                    return;
-                }
-                MonitorBLEFragment.this.mainActivity.setWarning(false, "");
-                MonitorBLEFragment.this.retryCount = 0;
-                MonitorBLEFragment.this.deviceNum = 0;
-                MonitorBLEFragment.this.timeOutCoefficient = 1;
-            }
-        }, (long) (this.timeOutCoefficient * BLE_TIME_OUT));
+        this.mSoundCard = new SoundCard(SoundCard.SAMPLING, SoundCard.ORIGINAL_SAMPLING);
     }
 
     private void handleData(byte[] data) {
         String strMsgLog;
         int count = 0;
-        int i;
+        int errorCount;
         try {
-            int i2 = data.length;
+            int dataLength = data.length;
             byte[] bArr = data;
-            int i3 = 58;
+            int frameSize = 58;
 
             short[] sArr = new short[116];
-            for (int i4 = 0; i4 < i2; i4++) {
+            for (int i4 = 0; i4 < dataLength; i4++) {
                 mRevDataBuf[mRevDataLength] = bArr[i4];
-                MonitorBLEFragment.access$1608(this);
+                this.mRevDataLength++;
                 if (mRevDataLength >= 232) {
                     mRevDataLength = 0;
                 }
@@ -353,18 +275,18 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
                     if (i6 > i5) {
                         break;
                     }
-                    for (int i8 = 0; i8 < i3; i8++) {
+                    for (int i8 = 0; i8 < frameSize; i8++) {
                         bArr2[i8] = mRevDataBuf[i6 + i8];
                     }
                     //Log.d("decode_frame", " data==444  " + BleUtils.byte2hex(bArr2));
-                    i7 = mAudioCompress.decode_frame(bArr2, sArr, i3);
+                    i7 = mAudioCompress.decode_frame(bArr2, sArr, frameSize);
                     Log.e("decode_frame", "result== " + i7);
                     strMsgLog = "";
                     int i9 = 0;
-                    while (i9 < i3) {
+                    while (i9 < frameSize) {
                         strMsgLog += String.format("%02X ", Byte.valueOf(bArr2[i9]));
                         i9++;
-                        i3 = 58;
+                        frameSize = 58;
                     }
                     strMsgLog = "";
                     for (int i10 = 0; i10 < 116; i10++) {
@@ -374,16 +296,16 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
                         break;
                     }
                     i6++;
-                    i3 = 58;
+                    frameSize = 58;
                 }
                 if (i7 != -1) {
-                    i = (mRevDataLength - i6) - 58;
+                    errorCount = (mRevDataLength - i6) - 58;
                     mFHR = i7;
                     monitorView.addFHR(i7);
                     mSoundCard.WriteData(sArr, 100);
                     //Log.e("decode_frame", "err11: 正确字节数 =" + i + " mRevDataLength" + mRevDataLength + " i6: " + i6);
                 } else {
-                    i = mRevDataLength - i6;
+                    errorCount = mRevDataLength - i6;
                     StringBuilder sb = new StringBuilder();
                     sb.append("错误字节数 = ");
                     int i11 = count;
@@ -391,10 +313,10 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
                     sb.append(i11);
                     Log.e("decode_frame", "err11: " + sb.toString());
                 }
-                for (int i12 = 0; i12 < i; i12++) {
-                    mRevDataBuf[i12] = mRevDataBuf[(mRevDataLength - i) + i12];
+                for (int i12 = 0; i12 < errorCount; i12++) {
+                    mRevDataBuf[i12] = mRevDataBuf[(mRevDataLength - errorCount) + i12];
                 }
-                mRevDataLength = i;
+                mRevDataLength = errorCount;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -402,9 +324,6 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
     }
 
     private void disConnect() {
-        if (this.gatt != null) {
-            this.gatt.disconnect();
-        }
         Log.e(TAG, "diConnect.....");
     }
 

@@ -1,4 +1,4 @@
-package com.example.blesdkdemo.ui;
+package com.example.blesdkdemo.txy.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -10,9 +10,10 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.example.blesdkdemo.MyApplication;
+import com.example.blesdkdemo.BleApplication;
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.util.Util;
+import com.ikangtai.bluetoothsdk.util.PxDxUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,7 +35,7 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
     public static final int LEAVE_FLAG = -2;
     public static final int MAX_DIVIDE = 30;
     public static final int MINUTE_TEXT_SIZE = 16;
-    public static final String START_FLAG_TEXT = MyApplication.getInstance().getResources().getString(R.string.start_flag);
+    public static final String START_FLAG_TEXT = BleApplication.getInstance().getResources().getString(R.string.start_flag);
     public static final int STATE_SIZE = 0;
     public static final String STATE_TEXT = "胎心率 FHR/BPM";
     private static final String TAG = "MonitorSurfaceView_TAG";
@@ -82,6 +83,7 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
     private float x3;
     private float x4;
     private float xLength;
+    private Paint quickeningPaint;
 
     public void setFhrListener(OnFhrListener onFhrListener) {
         this.fhrListener = onFhrListener;
@@ -113,6 +115,23 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         return this.fhrDataList.get(this.fhrDataList.size() - 1).getFhr();
     }
 
+    public int getAvaFHR() {
+        if ((this.fhrDataList.size() <= 0) || (!this.isConnect)) {
+            return 0;
+        }
+        Iterator<FHRData> it = this.fhrDataList.iterator();
+        int num = 0;
+        int fhr = 0;
+        while (it.hasNext()) {
+            FHRData fhrData = it.next();
+            if (fhrData.getFhr() > 0) {
+                num++;
+                fhr += fhrData.getFhr();
+            }
+        }
+        return num > 0 ? fhr / num : num;
+    }
+
     public void addData(@NonNull List<FHRData> list) {
         for (int i = 0; i < list.size(); i++) {
             FHRData fHRData = list.get(i);
@@ -122,9 +141,15 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         this.pause = false;
     }
 
+    public void clearData() {
+        this.pointList.clear();
+        this.fhrDataList.clear();
+        invalidate();
+    }
+
     public long getRecordingTime(int i) {
         if (this.fhrDataList.size() > 0) {
-            return (long) (((this.fhrDataList.size() - 1) - i) * 500);
+            return (long) (((this.fhrDataList.size() - 1) - i) * DATA_TIME);
         }
         return 0;
     }
@@ -171,19 +196,20 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         this.monitorTH = new MonitorTH();
         this.holder = getHolder();
         this.holder.addCallback(this);
-        this.thinLine = MyPaint.getThinLine();
-        this.thickLine = MyPaint.getThickLine();
-        this.baseLine = MyPaint.getBaseLine();
-        this.startPaint = MyPaint.getStartPaint();
+        this.thinLine = FHRPaint.getThinLine();
+        this.thickLine = FHRPaint.getThickLine();
+        this.baseLine = FHRPaint.getBaseLine();
+        this.startPaint = FHRPaint.getStartPaint();
         this.startPaint.setTextSize(Util.dp2px(13));
-        this.fhrLine = MyPaint.getFHRLine();
-        this.safeFHRPain = MyPaint.getSafeFHRPaint();
-        this.fhrText = MyPaint.getFHRText();
-        this.fhrText.setTextSize(Util.dp2px(13));
-        this.minuteText = MyPaint.getMinuteText();
+        this.quickeningPaint = FHRPaint.getQuickeningPaint();
+        this.fhrLine = FHRPaint.getFHRLine();
+        this.safeFHRPain = FHRPaint.getSafeFHRPaint();
+        this.fhrText = FHRPaint.getFHRText();
+        this.fhrText.setTextSize(Util.dp2px(14));
+        this.minuteText = FHRPaint.getMinuteText();
         this.minuteText.setTextSize(Util.dp2px(16));
-        this.startX = Util.dp2px(13) * 2.0f;
-        this.startY = (Util.dp2px(13) / 2.0f) + Util.dp2px(0);
+        this.startX = Util.dp2px(42);
+        this.startY = (Util.dp2px(13) / 2.0f) + Util.dp2px(9);
         this.min_scale_height = Util.dp2px(16);
         setFocusableInTouchMode(true);
         setKeepScreenOn(true);
@@ -266,8 +292,11 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
     }
 
     private void drawCoordinates() {
-        this.canvas.drawRect(this.startX, this.startY + (this.scale_y_px * 8.0f), this.xLength, this.startY + (this.scale_y_px * 12.0f), this.safeFHRPain);
+
         Canvas canvas2 = this.canvas;
+        this.fhrText.setTextSize(PxDxUtil.sp2px(getContext(), 9));
+        canvas2.drawText(getContext().getString(R.string.fhr), this.startX - this.text_FHR_left_offset, this.startY - this.text_FHR_down_offset, this.fhrText);
+        this.fhrText.setTextSize(PxDxUtil.sp2px(getContext(), 14));
         canvas2.drawText("" + this.maxFHRScale, this.startX - this.text_FHR_left_offset, this.startY + this.text_FHR_down_offset, this.fhrText);
         for (int i = 1; i <= this.num_FHRScaleLine; i++) {
             if (i % 3 == 0) {
@@ -298,6 +327,7 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
                 this.canvas.drawLine((((float) (((double) this.startX) + ((this.per_cm_of_px * 2.0d) * d))) - this.x3) + this.x4, this.startY, (((float) (((double) this.startX) + ((this.per_cm_of_px * 2.0d) * d))) - this.x3) + this.x4, this.stopY, this.thickLine);
             }
         }
+        this.canvas.drawRect(this.startX, this.startY + (this.scale_y_px * 8.0f), this.xLength, this.startY + (this.scale_y_px * 13.0f), this.safeFHRPain);
         drawFHRLine();
         if (this.isHistory) {
             this.canvas.drawLine((float) (((double) this.startX) + (this.per_cm_of_px * 2.0d)), this.startY, (float) (((double) this.startX) + (this.per_cm_of_px * 2.0d)), this.stopY, this.baseLine);
@@ -310,11 +340,17 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
                 FHRPoint fHRPoint = this.pointList.get(i);
                 int i2 = i - 1;
                 FHRPoint fHRPoint2 = this.pointList.get(i2);
+                if (fHRPoint == null) {
+                    continue;
+                }
+                if (fHRPoint2 == null) {
+                    continue;
+                }
                 if ((fHRPoint2.getX() - this.x3) + this.x4 > this.startX && (fHRPoint.getX() - this.x3) + this.x4 > this.startX && Math.abs(this.fhrDataList.get(i).getFhr() - this.fhrDataList.get(i2).getFhr()) < 30) {
                     this.canvas.drawLine((fHRPoint2.getX() - this.x3) + this.x4, fHRPoint2.getY(), (fHRPoint.getX() - this.x3) + this.x4, fHRPoint.getY(), this.fhrLine);
                 }
                 if (fHRPoint.isQuickening() && (getFHRTo_XPx(31, i2) - this.x3) + this.x4 > this.startX && (getFHRTo_XPx(31, i2) - this.x3) + this.x4 + Util.dp2px(4) > this.startX) {
-                    this.canvas.drawRect(this.x4 + (getFHRTo_XPx(31, i2) - this.x3), this.stopY - Util.dp2px(8), Util.dp2px(4) + (getFHRTo_XPx(31, i2) - this.x3) + this.x4, this.stopY, new Paint());
+                    this.canvas.drawRect(this.x4 + (getFHRTo_XPx(31, i2) - this.x3), this.stopY - Util.dp2px(8), Util.dp2px(4) + (getFHRTo_XPx(31, i2) - this.x3) + this.x4, this.stopY, this.quickeningPaint);
                 }
                 if (fHRPoint.getBreakType() == 1 && (getFHRTo_XPx(31, i2) - this.x3) + this.x4 > this.startX && (getFHRTo_XPx(31, i2) - this.x3) + this.x4 + Util.dp2px(4) > this.startX) {
                     this.canvas.drawLine((getFHRTo_XPx(31, i2) - this.x3) + this.x4, this.startY + Util.dp2px(13), (getFHRTo_XPx(31, i2) - this.x3) + this.x4, this.stopY, this.startPaint);
@@ -380,11 +416,11 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
 
     public void setBreakType(int i) {
         if (this.pointList.size() > 0) {
-            FHRData fHRData = new FHRData(-2, false);
-            for (int i2 = 0; i2 < 60; i2++) {
-                this.fhrDataList.add(this.fhrDataList.size() - 1, fHRData);
-                this.pointList.add(getFHRIndex(), new FHRPoint(getFHRTo_XPx(fHRData.getFhr(), getFHRIndex()), getFHRTo_YPx(fHRData.getFhr()), fHRData.isQuickening()));
-            }
+//            FHRData fHRData = new FHRData(-2, false);
+//            for (int i2 = 0; i2 < 60; i2++) {
+//                this.fhrDataList.add(this.fhrDataList.size() - 1, fHRData);
+//                this.pointList.add(getFHRIndex(), new FHRPoint(getFHRTo_XPx(fHRData.getFhr(), getFHRIndex()), getFHRTo_YPx(fHRData.getFhr()), fHRData.isQuickening()));
+//            }
             this.pointList.get(this.pointList.size() - 1).setBreakType(i);
             moveToNow();
         }
@@ -466,8 +502,8 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
                         FHRMonitorView.this.x3 += (float) (FHRMonitorView.this.per_cm_of_px / 60.0d);
                     }
                     long currentTimeMillis2 = System.currentTimeMillis() - currentTimeMillis;
-                    if (currentTimeMillis2 < 500) {
-                        sleep(500 - currentTimeMillis2);
+                    if (currentTimeMillis2 < DATA_TIME) {
+                        sleep(DATA_TIME - currentTimeMillis2);
                     }
                 }
             } catch (Exception e) {

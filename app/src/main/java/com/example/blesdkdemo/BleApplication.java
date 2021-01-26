@@ -4,18 +4,16 @@ import android.app.Application;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
-import com.example.blesdkdemo.util.FontUtil;
-
 /**
  * desc
  *
  * @author xiongyl 2020/6/18 22:56
  */
-public class MyApplication extends Application {
+public class BleApplication extends Application {
     public AppPreferences appPreferences;
-    private static MyApplication instance;
+    private static BleApplication instance;
 
-    public static MyApplication getInstance() {
+    public static BleApplication getInstance() {
         return instance;
     }
 
@@ -24,7 +22,6 @@ public class MyApplication extends Application {
         super.onCreate();
         appPreferences = new AppPreferences(this);
         instance = this;
-        FontUtil.init(this);
     }
 
     public static class AppPreferences {

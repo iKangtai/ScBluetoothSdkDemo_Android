@@ -1,4 +1,4 @@
-package com.example.blesdkdemo.ui;
+package com.example.blesdkdemo.txy.ui;
 
 
 public interface OnFhrListener {

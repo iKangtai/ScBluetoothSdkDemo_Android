@@ -1,4 +1,4 @@
-package com.example.blesdkdemo;
+package com.example.blesdkdemo.txy;
 
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -9,13 +9,15 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.blesdkdemo.Constant;
+import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.databinding.ActivityHistoryBinding;
-import com.example.blesdkdemo.db.HistoryBean;
-import com.example.blesdkdemo.db.HistoryDao;
-import com.example.blesdkdemo.ui.FHRData;
-import com.example.blesdkdemo.ui.FHRMonitorView;
-import com.example.blesdkdemo.ui.OnFhrListener;
-import com.example.blesdkdemo.ui.OnMonitorTouchListener;
+import com.example.blesdkdemo.txy.db.HistoryBean;
+import com.example.blesdkdemo.txy.db.HistoryDao;
+import com.example.blesdkdemo.txy.ui.FHRData;
+import com.example.blesdkdemo.txy.ui.FHRMonitorView;
+import com.example.blesdkdemo.txy.ui.OnFhrListener;
+import com.example.blesdkdemo.txy.ui.OnMonitorTouchListener;
 import com.example.blesdkdemo.util.GsonUtil;
 import com.google.gson.reflect.TypeToken;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
@@ -28,14 +30,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
-public class HistoryActivity extends BaseActivity implements OnFhrListener, View.OnClickListener {
+/**
+ * 胎心监护
+ *
+ * @author xiongyl 2020/9/24 0:55
+ */
+public class HistoryActivity extends AppCompatActivity implements OnFhrListener, View.OnClickListener {
     private static final String TAG = "HistoryActivity_TAG";
     private int audio_progress_max;
     private Runnable correctRunnable = new Runnable() {
-        /* class com.laijiayiliao.myapplication.ui.activity.HistoryActivity.AnonymousClass7 */
-
         public void run() {
             try {
                 Thread.sleep(100);
@@ -54,25 +60,23 @@ public class HistoryActivity extends BaseActivity implements OnFhrListener, View
     private boolean isPlayPause = true;
     private boolean isPlayStart = false;
     private boolean isTouchSB = false;
-    ImageView iv_back;
-    ImageView iv_play;
+    private ImageView iv_back;
+    private ImageView iv_play;
     private MediaPlayer mediaPlayer;
-    FHRMonitorView monitorView;
+    private FHRMonitorView monitorView;
     private long monitor_time;
     private int progress = 0;
-    SeekBar sk_progress;
-    TextView tv_FHR;
-    TextView tv_allTime;
-    TextView tv_monitor_time;
-    TextView tv_nowTime;
-    TextView tv_quickening_num;
-    TextView tv_time;
-    TextView tv_title;
+    private SeekBar sk_progress;
+    private TextView tv_FHR;
+    private TextView tv_allTime;
+    private TextView tv_monitor_time;
+    private TextView tv_nowTime;
+    private TextView tv_quickening_num;
+    private TextView tv_time;
+    private TextView tv_title;
     private ActivityHistoryBinding historyActivityBinding;
 
-    /* access modifiers changed from: protected */
     @Override
-    // android.support.v4.app.SupportActivity, android.support.v7.app.AppCompatActivity, android.support.v4.app.FragmentActivity, com.laijiayiliao.myapplication.ui.BaseActivity
     public void onCreate(@Nullable Bundle bundle) {
         super.onCreate(bundle);
         historyActivityBinding = DataBindingUtil.setContentView(this, R.layout.activity_history);
@@ -97,45 +101,41 @@ public class HistoryActivity extends BaseActivity implements OnFhrListener, View
         tv_title = historyActivityBinding.tvTitle;
     }
 
-    /* access modifiers changed from: protected */
     @Override
-    // android.support.v4.app.FragmentActivity, com.laijiayiliao.myapplication.ui.BaseActivity
     public void onResume() {
         super.onResume();
         this.monitorView.startHistoryMode();
         this.monitorView.setPause(false);
         this.monitorView.postDelayed(new Runnable() {
-            /* class com.laijiayiliao.myapplication.ui.activity.HistoryActivity.AnonymousClass1 */
-
             public void run() {
                 HistoryActivity.this.monitorView.setPause(true);
             }
         }, 50);
     }
 
-    /* access modifiers changed from: protected */
-    @Override // android.support.v4.app.FragmentActivity
+
+    @Override
     public void onPause() {
         playStop();
         this.monitorView.closeHistoryMode();
         super.onPause();
     }
 
-    /* access modifiers changed from: protected */
-    @Override // android.support.v7.app.AppCompatActivity, android.support.v4.app.FragmentActivity
+
+    @Override
     public void onDestroy() {
         this.mediaPlayer.release();
         this.mediaPlayer = null;
         super.onDestroy();
     }
 
-    @Override // android.support.v4.app.FragmentActivity
+    @Override
     public void onBackPressed() {
         playStop();
         super.onBackPressed();
     }
 
-    @Override // com.laijiayiliao.myapplication.ui.monitorView.OnFhrListener
+    @Override
     public void getFHR(int i, int i2) {
         int i3 = i * 500;
         this.tv_nowTime.setText(this.formatRecordingTime.format(Integer.valueOf(i3)));
@@ -168,11 +168,8 @@ public class HistoryActivity extends BaseActivity implements OnFhrListener, View
         TextView textView = this.tv_time;
         textView.setText("录制时间：" + this.historyData.getTime());
         this.fhrData = (ArrayList) GsonUtil.getJsonData(this.historyData.getFhr_json(), new TypeToken<ArrayList<FHRData>>() {
-            /* class com.laijiayiliao.myapplication.ui.activity.HistoryActivity.AnonymousClass2 */
         }.getType());
         this.monitorView.post(new Runnable() {
-            /* class com.laijiayiliao.myapplication.ui.activity.HistoryActivity.AnonymousClass3 */
-
             public void run() {
                 HistoryActivity.this.monitorView.addData(HistoryActivity.this.fhrData);
                 HistoryActivity.this.monitor_time = HistoryActivity.this.monitorView.getRecordingTime(0);
@@ -210,22 +207,19 @@ public class HistoryActivity extends BaseActivity implements OnFhrListener, View
     private void setListeners() {
         this.monitorView.setFhrListener(this);
         this.monitorView.setOnMonitorTouchListener(new OnMonitorTouchListener() {
-            /* class com.laijiayiliao.myapplication.ui.activity.HistoryActivity.AnonymousClass4 */
-
-            @Override // com.laijiayiliao.myapplication.ui.monitorView.OnMonitorTouchListener
+            @Override
             public void isTouchDown() {
                 HistoryActivity.this.touchStart();
                 HistoryActivity.this.setSBMove(false);
             }
 
-            @Override // com.laijiayiliao.myapplication.ui.monitorView.OnMonitorTouchListener
+            @Override
             public void isTouchUp() {
                 HistoryActivity.this.touchStop();
                 HistoryActivity.this.setSBMove(true);
             }
         });
         this.sk_progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            /* class com.laijiayiliao.myapplication.ui.activity.HistoryActivity.AnonymousClass5 */
 
             public void onProgressChanged(SeekBar seekBar, int i, boolean z) {
                 if (HistoryActivity.this.isTouchSB) {
@@ -271,16 +265,12 @@ public class HistoryActivity extends BaseActivity implements OnFhrListener, View
         }
     }
 
-    /* access modifiers changed from: private */
-    /* access modifiers changed from: public */
     private void setSBMove(boolean z) {
         this.sk_progress.setFocusable(z);
         this.sk_progress.setClickable(z);
         this.sk_progress.setEnabled(z);
     }
 
-    /* access modifiers changed from: private */
-    /* access modifiers changed from: public */
     private void touchStart() {
         this.iv_play.setEnabled(false);
         if (!this.isPlayPause) {
@@ -288,8 +278,6 @@ public class HistoryActivity extends BaseActivity implements OnFhrListener, View
         }
     }
 
-    /* access modifiers changed from: private */
-    /* access modifiers changed from: public */
     private void touchStop() {
         this.iv_play.setEnabled(true);
         this.monitorView.setPause(true);
@@ -318,8 +306,6 @@ public class HistoryActivity extends BaseActivity implements OnFhrListener, View
         this.isPlayPause = true;
         this.monitorView.setHistoryMode(false);
         this.monitorView.postDelayed(new Runnable() {
-            /* class com.laijiayiliao.myapplication.ui.activity.HistoryActivity.AnonymousClass6 */
-
             public void run() {
                 HistoryActivity.this.monitorView.setPause(true);
             }

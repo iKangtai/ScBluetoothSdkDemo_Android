@@ -1,4 +1,4 @@
-package com.example.blesdkdemo;
+package com.example.blesdkdemo.txy;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,15 +16,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.blesdkdemo.databinding.FragmentMainBinding;
-import com.example.blesdkdemo.db.HistoryBean;
-import com.example.blesdkdemo.db.HistoryDao;
-import com.example.blesdkdemo.ui.FHRData;
-import com.example.blesdkdemo.ui.FHRMonitorView;
+import com.example.blesdkdemo.Constant;
+import com.example.blesdkdemo.R;
+import com.example.blesdkdemo.databinding.FragmentMonitorBinding;
+import com.example.blesdkdemo.txy.db.HistoryBean;
+import com.example.blesdkdemo.txy.db.HistoryDao;
+import com.example.blesdkdemo.txy.ui.FHRData;
+import com.example.blesdkdemo.txy.ui.FHRMonitorView;
 import com.example.blesdkdemo.util.GsonUtil;
-import com.example.blesdkdemo.util.PcmToWavUtil;
 import com.example.blesdkdemo.util.Util;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
+import com.ikangtai.bluetoothsdk.util.PcmToWavUtil;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -34,13 +36,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
+/**
+ * 胎心监护
+ *
+ * @author xiongyl 2020/9/24 0:55
+ */
 public class BaseMonitorFragment extends BaseFragment {
     private static final String TAG = "BaseMainFragment_TAG";
     public static boolean isRecording = false;
     protected String audio_path_name;
-    View bottom_view;
-    Button btn_quickening;
-    Button btn_switch;
+    protected View bottom_view;
+    protected Button btn_quickening;
+    protected Button btn_switch;
     private long click_quickening_old;
     protected int fhrEndIndex;
     protected int fhrStartIndex;
@@ -51,22 +58,22 @@ public class BaseMonitorFragment extends BaseFragment {
     protected boolean isCreated = true;
     private boolean isFragmentHidden = false;
     protected boolean isRunning = true;
-    ImageView iv_fhr_icon;
+    protected ImageView iv_fhr_icon;
     protected int mFHR;
     protected BleActivity mainActivity;
-    FHRMonitorView monitorView;
+    protected FHRMonitorView monitorView;
     protected boolean needPermission = false;
     private int quickening_num = 0;
     protected String save_time;
-    TextView tv_FHR;
-    TextView tv_monitor_time;
-    TextView tv_quickening_num;
+    protected TextView tv_FHR;
+    protected TextView tv_monitor_time;
+    protected TextView tv_quickening_num;
     protected HistoryDao historyDao;
-    protected FragmentMainBinding fragmentMainBinding;
+    protected FragmentMonitorBinding fragmentMainBinding;
 
     @Nullable
     public View onCreateView(@NonNull LayoutInflater layoutInflater, @Nullable ViewGroup viewGroup, @Nullable Bundle bundle) {
-        fragmentMainBinding = FragmentMainBinding.inflate(layoutInflater, viewGroup, false);
+        fragmentMainBinding = FragmentMonitorBinding.inflate(layoutInflater, viewGroup, false);
         fragmentMainBinding.setLifecycleOwner(this);
         this.mView = fragmentMainBinding.getRoot();
         return this.mView;
@@ -180,7 +187,6 @@ public class BaseMonitorFragment extends BaseFragment {
         }
     }
 
-    /* access modifiers changed from: protected */
     public void setQuickening() {
         if (this.click_quickening_old == 0) {
             this.click_quickening_old = System.currentTimeMillis();
@@ -197,7 +203,6 @@ public class BaseMonitorFragment extends BaseFragment {
         this.tv_quickening_num.setText(this.quickening_num + "");
     }
 
-    /* access modifiers changed from: protected */
     public void recordStart() {
         isRecording = true;
         long currentTimeMillis = System.currentTimeMillis();
@@ -210,7 +215,6 @@ public class BaseMonitorFragment extends BaseFragment {
         Toast.makeText(this.mContext, getResources().getString(R.string.recordStart), Toast.LENGTH_SHORT).show();
     }
 
-    /* access modifiers changed from: protected */
     public void recordEnd(String str) {
         isRecording = false;
         this.fhrEndIndex = this.monitorView.getFHRIndex();
@@ -219,7 +223,6 @@ public class BaseMonitorFragment extends BaseFragment {
         showSaveDataDialog(str);
     }
 
-    /* access modifiers changed from: protected */
     public void setMonitorTime() {
         new Thread() {
             public void run() {
@@ -262,14 +265,13 @@ public class BaseMonitorFragment extends BaseFragment {
         }).show();
     }
 
-    /* access modifiers changed from: private */
     public void saveData() {
         new Thread() {
             public void run() {
                 final ArrayList<FHRData> saveFHR = BaseMonitorFragment.this.monitorView.getSaveFHR(BaseMonitorFragment.this.fhrStartIndex, BaseMonitorFragment.this.fhrEndIndex);
                 String replace = BaseMonitorFragment.this.audio_path_name.replace(".pcm", ".wav");
                 final boolean pcmToWav = new PcmToWavUtil().pcmToWav(BaseMonitorFragment.this.audio_path_name, replace);
-                final HistoryBean historyBean=new HistoryBean(BaseMonitorFragment.this.save_time, GsonUtil.toJson(saveFHR), replace);
+                final HistoryBean historyBean = new HistoryBean(BaseMonitorFragment.this.save_time, GsonUtil.toJson(saveFHR), replace);
                 final int addHistory = pcmToWav ? BaseMonitorFragment.this.historyDao.addHistory(historyBean) : 0;
                 BaseMonitorFragment.this.mActivity.runOnUiThread(new Runnable() {
                     public void run() {

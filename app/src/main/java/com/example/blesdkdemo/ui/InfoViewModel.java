@@ -1,4 +1,4 @@
-package com.example.blesdkdemo;
+package com.example.blesdkdemo.ui;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;

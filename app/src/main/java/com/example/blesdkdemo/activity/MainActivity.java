@@ -1,8 +1,9 @@
-package com.example.blesdkdemo;
+package com.example.blesdkdemo.activity;
 
 import android.os.Bundle;
 import android.view.Menu;
 
+import com.example.blesdkdemo.R;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
