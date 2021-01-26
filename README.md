@@ -216,16 +216,33 @@ List of commands supported by the SDK:
 | SYNC_THERMOMETER_UNIT_C = 0 &nbsp;&nbsp;&nbsp;&nbsp;| The thermometer unit is set to Celsius |
 | SYNC_THERMOMETER_UNIT_F = 1 | The thermometer unit is set to Fahrenheit |
 | SYNC_TIME = 2 			  | Synchronize system time to thermometer |
-| GET_TIME = 3 				  | Get the thermometer time (currently not supported)|
+| GET_TIME = 3 				  | Get the thermometer time|
 | GET_POWER = 4				  | Get the thermometer battery |
 | GET_FIRMWARE_VERSION = 5	  | Get the firmware version number of the thermometer |
 | GET_DEVICE_DATA = 6		  | Get the data in the thermometer (can only get it once) |
 | GET_EWQ_FIRMWARE_VERSION = 7| Get the version number of the forehead thermometer |
-| GET_EWQ_DEVICE_DATA = 8	  | Get forehead thermometer data |
+| GET_THERMOMETER_UNIT = 8	  | get the thermometer unit |
+| SET_THERMOMETER_MODE = 9	  | set thermometer mode |
+| GET_THERMOMETER_MODE = 10	  | get thermometer mode |
+| GET_THERMOMETER_MEASURE_TIME = 11	  | Get the temperature measurement time of the thermometer |
+| SET_THERMOMETER_MEASURE_TIME1 = 12	  | set the temperature measurement time1 of the thermometer |
+| SET_THERMOMETER_MEASURE_TIME2 = 13	  | set the temperature measurement time2 of the thermometer |
+| CLEAR_THERMOMETER_DATA = 14	  | Clear thermometer data |
+| GET_DEVICE_HISTORY_DATA = 15	  | Get historical data of clinical thermometer |
+| SEND_HISTORY_DATA_ACK = 16	  | send historical data of clinical thermometer ack |
+| SYNC_THERMOMETER_UNIT = 17	  | hange the thermometer unit |
+| THERMOMETER_OTA_UPGRADE = 18	  | device ota upgrade |
+| GET_THERMOMETER_OAD_IMG_TYPE = 19	  | get device oad img type |
+| THERMOMETER_OAD_UPGRADE = 20	  | device oad upgrade |
+| IFEVER_DEVICE_VERIFY = 21	  | ifever device Verify |
 
-
-The thermometer supports the instruction set:{SEND_TEMP_ACK, SYNC_THERMOMETER_UNIT_C, SYNC_THERMOMETER_UNIT_F, SYNC_TIME, GET_FIRMWARE_VERSION, GET_DEVICE_DATA}
+The thermometer supports the instruction set:{SEND_TEMP_ACK, SYNC_THERMOMETER_UNIT_C, SYNC_THERMOMETER_UNIT_F, SYNC_TIME, GET_FIRMWARE_VERSION, GET_DEVICE_DATA, SYNC_THERMOMETER_UNIT, GET_POWER, GET_THERMOMETER_OAD_IMG_TYPE, THERMOMETER_OAD_UPGRADE};
 Forehead temperature gun supports instruction set:{GET_EWQ_FIRMWARE_VERSION, GET_EWQ_DEVICE_DATA}
+AKY3  thermometer supports instruction set:{SEND_TEMP_ACK, SYNC_TIME, GET_TIME, GET_FIRMWARE_VERSION, GET_DEVICE_DATA, SET_THERMOMETER_MODE, GET_THERMOMETER_MODE, GET_THERMOMETER_MEASURE_TIME, SET_THERMOMETER_MEASURE_TIME1, SET_THERMOMETER_MEASURE_TIME2, CLEAR_THERMOMETER_DATA, GET_DEVICE_HISTORY_DATA, SYNC_THERMOMETER_UNIT, GET_THERMOMETER_UNIT, GET_POWER,THERMOMETER_OTA_UPGRADE};
+AKY4  thermometer supports instruction set:{SEND_TEMP_ACK, SYNC_TIME, GET_TIME, GET_FIRMWARE_VERSION, GET_DEVICE_DATA, GET_THERMOMETER_MEASURE_TIME, SET_THERMOMETER_MEASURE_TIME1, SET_THERMOMETER_MEASURE_TIME2, CLEAR_THERMOMETER_DATA, GET_DEVICE_HISTORY_DATA, SYNC_THERMOMETER_UNIT, GET_THERMOMETER_UNIT, GET_POWER, THERMOMETER_OTA_UPGRADE};
+Fetal Favorite supports instruction set:{}
+Body temperature patch supports instruction set:{SYNC_TIME, GET_FIRMWARE_VERSION, GET_DEVICE_DATA, GET_POWER, IFEVER_DEVICE_VERIFY};
+
 
 ### Confusion configuration
 If your application uses code obfuscation, please add the following configuration to avoid SDK being unavailable due to incorrect obfuscation.
