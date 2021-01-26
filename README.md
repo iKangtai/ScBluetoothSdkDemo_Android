@@ -4,7 +4,7 @@
 
 <https://github.com/iKangtai/ScBluetoothSdkDemo_Android.git>
 
-## :large_blue_circle: Internationalization
+## Internationalization
 English | [中文文档](README_zh.md)
 
 ## Access Guide
@@ -15,7 +15,8 @@ English | [中文文档](README_zh.md)
 | Scan for nearby Bluetooth devices          | Scan for Bluetooth devices near the phone and refresh the device list every second |
 | Connect to Shecare thermometer to synchronize data&nbsp;&nbsp;&nbsp;&nbsp;| Connect the thermometer to synchronize data, set the thermometer temperature unit and time, and get the firmware version |
 | Connect Shecare forehead thermometer to synchronize data&nbsp;&nbsp;| Connect the forehead thermometer to synchronize data and get the firmware version number |
-
+| Connect to Shecare fetal heart rate monitor to synchronize data&nbsp;&nbsp;| Connect the forehead thermometer to synchronize data and get the firmware version number |
+| Connect Shecare body temperature stickers to synchronize data&nbsp;&nbsp;| Connect the forehead thermometer to synchronize data and get the firmware version number |
 ### Integrated SDK
 1.The first way
 Add the new maven warehouse address of Bluetooth SDK in the buildscript and allprojects sections of the project build.gradle configuration script:

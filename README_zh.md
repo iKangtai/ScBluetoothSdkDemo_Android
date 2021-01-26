@@ -4,7 +4,7 @@
 
 <https://github.com/iKangtai/ScBluetoothSdkDemo_Android.git>
 
-## :large_blue_circle: 国际化
+## 国际化
 [English](README.md) | 中文文档
 
 ## 访问指南
