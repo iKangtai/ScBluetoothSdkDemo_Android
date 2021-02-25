@@ -2,7 +2,7 @@
 
 ## Demo
 
-<https://github.com/iKangtai/ScBluetoothSdkDemo_Android.git>
+<http://fir.ikangtai.cn/qkxb>
 
 ## Internationalization
 English | [中文文档](README_zh.md)
@@ -25,7 +25,7 @@ Add the new maven warehouse address of Bluetooth SDK in the buildscript and allp
 ```
 Add the statistics SDK library dependency in the dependencies section of the project App corresponding build.gradle configuration script:
 ```java
-    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.1.6'
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.1.7'
 ```
 2.The second way,to copy the SDK aar file to the app/libs/ directory of the project, and then configure gradle
 ```java
@@ -38,7 +38,7 @@ Add the statistics SDK library dependency in the dependencies section of the pro
         }
 
         dependencies {
-            implementation(name: 'scbluetoothlib-release-v1.1.6', ext: 'aar')
+            implementation(name: 'scbluetoothlib-release-v1.1.7', ext: 'aar')
         }
 ```
 3.The third way,to copy the ScBluetoothLib module configuration of Demo to the project, and then add the implementation project (':ScBluetoothLib') to establish the dependency

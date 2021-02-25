@@ -2,7 +2,7 @@
 
 ## Demo
 
-<https://github.com/iKangtai/ScBluetoothSdkDemo_Android.git>
+<http://fir.ikangtai.cn/qkxb>
 
 ## 国际化
 [English](README.md) | 中文文档
@@ -26,7 +26,7 @@
 ```
 在项目App对应的build.gradle配置脚本的“dependencies”部分中添加统计信息SDK库依赖关系：
 ```java
-    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.1.6'
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.1.7'
 ```
 2.第二种方法，将SDK aar文件复制到项目的app/libs/目录，然后配置gradle
 ```java
@@ -39,7 +39,7 @@
         }
 
         dependencies {
-            implementation(name: 'scbluetoothlib-release-v1.1.6', ext: 'aar')
+            implementation(name: 'scbluetoothlib-release-v1.1.7', ext: 'aar')
         }
 ```
 3.第三种方式，将Demo的ScBluetoothLib模块配置复制到项目中，然后添加实现项目（':ScBluetoothLib'）建立依赖关系
