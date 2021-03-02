@@ -37,7 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 /**
- * 胎心监护
+ * Fetal Heart Monitoring
  *
  * @author xiongyl 2020/9/24 0:55
  */

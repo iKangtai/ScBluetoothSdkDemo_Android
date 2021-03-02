@@ -1,5 +1,4 @@
 package com.example.blesdkdemo.txy.ui;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -9,6 +8,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
 
 import com.example.blesdkdemo.BleApplication;
 import com.example.blesdkdemo.R;
@@ -37,7 +37,6 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
     public static final int MINUTE_TEXT_SIZE = 16;
     public static final String START_FLAG_TEXT = BleApplication.getInstance().getResources().getString(R.string.start_flag);
     public static final int STATE_SIZE = 0;
-    public static final String STATE_TEXT = "胎心率 FHR/BPM";
     private static final String TAG = "MonitorSurfaceView_TAG";
     public static final int W = 4;
     private Paint baseLine;
@@ -261,8 +260,6 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         }
     }
 
-    /* access modifiers changed from: private */
-    /* access modifiers changed from: public */
     private void drawSelf() {
         try {
             this.canvas = this.holder.lockCanvas();
@@ -476,8 +473,6 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
                         FHRMonitorView.this.pointList.add(new FHRPoint(fHRTo_XPx, fHRTo_YPx, FHRMonitorView.this.isQuickening));
                         if (FHRMonitorView.this.fhrListener != null) {
                             FHRMonitorView.this.post(new Runnable() {
-                                /* class com.laijiayiliao.myapplication.ui.monitorView.FHRMonitorView.FHRThread.AnonymousClass1 */
-
                                 public void run() {
                                     FHRMonitorView.this.fhrListener.getFHR(FHRMonitorView.this.getFHRIndex(), FHRThread.this.fhr);
                                 }
@@ -512,8 +507,6 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         }
     }
 
-    /* access modifiers changed from: private */
-    /* access modifiers changed from: public */
     private void moveToNow() {
         initial();
         if (getFHRIndex() > 360) {

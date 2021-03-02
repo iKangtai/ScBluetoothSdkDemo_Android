@@ -2,6 +2,7 @@ package com.example.blesdkdemo.txy;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothProfile;
 import android.content.DialogInterface;
 import android.os.Build;
@@ -33,7 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 /**
- * 胎心监护
+ * Fetal Heart Monitoring
  *
  * @author xiongyl 2020/9/24 0:55
  */
@@ -73,7 +74,7 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
                 Toast.makeText(MonitorBLEFragment.this.mContext, MonitorBLEFragment.this.getResources().getString(R.string.connected), Toast.LENGTH_SHORT).show();
                 mainActivity.setConnectIcon(R.drawable.ble_connect);
                 MonitorBLEFragment.this.isConnected = true;
-                Log.e(MonitorBLEFragment.TAG, "onConnectionStateChange:  连接成功");
+                Log.e(MonitorBLEFragment.TAG, "onConnectionStateChange:  connected");
                 MonitorBLEFragment.this.mainActivity.setWarning(false, "");
                 MonitorBLEFragment.this.monitorView.setConnect(true);
                 MonitorBLEFragment.this.mSoundCard.setPause(false);
@@ -90,7 +91,7 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
                 MonitorBLEFragment.this.monitorView.setBreakType(1);
                 MonitorBLEFragment.this.mFHR = 0;
                 MonitorBLEFragment.this.tv_FHR.setText("---");
-                Log.e(MonitorBLEFragment.TAG, "onConnectionStateChange:  断开连接");
+                Log.e(MonitorBLEFragment.TAG, "onConnectionStateChange:  disconnect");
                 checkConnectDialog();
             }
             MonitorBLEFragment.this.monitorView.setConnect(MonitorBLEFragment.this.isConnected);
@@ -208,7 +209,7 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
         this.monitorView.setConnect(false);
         this.mSoundCard.close();
         isRecording = false;
-        Log.e(TAG, "关闭fragment！！");
+        Log.e(TAG, "close fragment！！");
         if (scPeripheralManager != null) {
             scPeripheralManager.stopScan();
             scPeripheralManager.disconnectPeripheral();
@@ -307,7 +308,7 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
                 } else {
                     errorCount = mRevDataLength - i6;
                     StringBuilder sb = new StringBuilder();
-                    sb.append("错误字节数 = ");
+                    sb.append("error byte = ");
                     int i11 = count;
                     count = i11 + 1;
                     sb.append(i11);

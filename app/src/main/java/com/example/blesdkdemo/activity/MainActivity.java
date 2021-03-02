@@ -2,9 +2,12 @@ package com.example.blesdkdemo.activity;
 
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
 
 import com.example.blesdkdemo.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;

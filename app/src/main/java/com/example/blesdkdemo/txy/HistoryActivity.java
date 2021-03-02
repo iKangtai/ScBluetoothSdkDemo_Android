@@ -34,7 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 /**
- * 胎心监护
+ * Fetal Heart Monitoring History
  *
  * @author xiongyl 2020/9/24 0:55
  */
@@ -166,7 +166,7 @@ public class HistoryActivity extends AppCompatActivity implements OnFhrListener,
         this.historyData = this.dao.queryById(id);
         LogUtils.d("get id:" + id + "data:" + this.historyData);
         TextView textView = this.tv_time;
-        textView.setText("录制时间：" + this.historyData.getTime());
+        textView.setText("Time：" + this.historyData.getTime());
         this.fhrData = (ArrayList) GsonUtil.getJsonData(this.historyData.getFhr_json(), new TypeToken<ArrayList<FHRData>>() {
         }.getType());
         this.monitorView.post(new Runnable() {

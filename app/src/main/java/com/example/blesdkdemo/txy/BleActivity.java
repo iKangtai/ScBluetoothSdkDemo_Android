@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 /**
- * 胎心仪
+ * Fetal Preference
  *
  * @author xiongyl 2020/9/24 0:55
  */

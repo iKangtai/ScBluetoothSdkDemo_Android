@@ -12,7 +12,7 @@ import com.ikangtai.bluetoothsdk.util.LogUtils;
 import java.io.File;
 
 /**
- * desc
+ * Devices OTA Upgrade
  *
  * @author xiongyl 2020/10/16 0:00
  */
@@ -34,7 +34,7 @@ public class OtaFileUtil {
             downloadURL = downloadJsonURL;
             downloadFirmwareImage();
         } else {
-            LogUtils.e("下载固件时出现错误");
+            LogUtils.e("An error occurred while downloading the firmware");
         }
     }
 
@@ -42,36 +42,35 @@ public class OtaFileUtil {
         String filePath = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + getFileName(latestVer);
         File downloadFile = new File(filePath);
         if (downloadFile.exists()) {
-            LogUtils.i("发现已下载了固件镜像文件 " + getFileName(latestVer) + ", 无需再次下载!");
+            LogUtils.i("Found that the firmware image file has been downloaded " + getFileName(latestVer) + ", no need to download again!");
             downloadId = -10001;
             Intent intent = new Intent(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
             context.sendBroadcast(intent);
             //downloadFile.delete();
         } else {
-            //创建下载任务,downloadUrl就是下载链接
+            //Create a download task, downloadUrl is the download link
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadURL));
-            //设置通知栏标题
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
-            request.setTitle("OTA下载");
-            request.setDescription("OTA二进制文件正在下载...");
+            request.setTitle("OTA download");
+            request.setDescription("OTA binaries are downloading...");
             request.setAllowedOverRoaming(false);
-            //指定下载路径和下载文件名
+            //Specify the download path and download file name
             request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, getFileNameTemp(latestVer));
-            //获取下载管理器
+            //Get download manager
             DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            //将下载任务加入下载队列，否则不会进行下载
+            //Add the download task to the download queue, otherwise it will not download
             downloadId = downloadManager.enqueue(request);
-            LogUtils.i("正在下载 ... downloadId = " + downloadId);
+            LogUtils.i("download ... downloadId = " + downloadId);
         }
     }
 
     public static String getFileName(String version) {
-        String fileName = String.format("otaBinFile_complete_%s.img",version);
+        String fileName = String.format("otaBinFile_complete_%s.img", version);
         return fileName.replaceAll("\\.", "_");
     }
 
     public static String getFileNameTemp(String version) {
-        String fileName = String.format("otaBinFile_complete_temp_%s.img",version);
+        String fileName = String.format("otaBinFile_complete_temp_%s.img", version);
         return fileName.replaceAll("\\.", "_");
     }
 

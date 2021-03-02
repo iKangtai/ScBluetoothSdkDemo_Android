@@ -47,7 +47,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 /**
- * 扫描附近蓝牙设备
+ * Scan for nearby Bluetooth devices
  *
  * @author xiongyl 2020/9/24 0:55
  */

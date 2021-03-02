@@ -76,7 +76,7 @@ public class InfoFragment extends Fragment {
         @Override
         public void onReceiveError(String macAddress, int code, String msg) {
             /**
-             * The code see {@link BleCode}
+             * The code see {@link com.ikangtai.bluetoothsdk.util.BleCode}
              */
             LogUtils.d("onReceiveError:" + code + "  " + msg);
             checkConnectDialog();

@@ -12,7 +12,7 @@ import com.ikangtai.bluetoothsdk.util.LogUtils;
 import java.io.File;
 
 /**
- * desc
+ * Devices OAD Upgrade
  *
  * @author xiongyl 2020/10/16 0:00
  */
@@ -36,14 +36,14 @@ public class OadFileUtil {
         int firmwareImgAB = imgType;
         if (firmwareImgAB == BleParam.FIRMWARE_IMAGE_REVERSION_A) {
             downloadURL += "/B31_3.66.bin";
-            LogUtils.i("目前固件使用版本A，下载升级固件B.");
+            LogUtils.i("The current firmware uses version A, download and upgrade firmware B.");
             downloadFirmwareImage(BleParam.FIRMWARE_IMAGE_REVERSION_A);
         } else if (firmwareImgAB == BleParam.FIRMWARE_IMAGE_REVERSION_B) {
             downloadURL += "/A31_3.66.bin";
-            LogUtils.i("目前固件使用版本B，下载升级固件A.");
+            LogUtils.i("The current firmware uses version B, download and upgrade firmware A.");
             downloadFirmwareImage(BleParam.FIRMWARE_IMAGE_REVERSION_B);
         } else {
-            LogUtils.e("下载固件时出现错误，非A/B");
+            LogUtils.e("An error occurred while downloading the firmware, not A/B");
         }
     }
 
@@ -52,26 +52,25 @@ public class OadFileUtil {
         File downloadFile = new File(filePath);
         downloadFile.delete();
         if (downloadFile.exists()) {
-            LogUtils.i("发现已下载了固件镜像文件 " + getFileName(type, version) + ", 无需再次下载!");
+            LogUtils.i("Found that the firmware image file has been downloaded " + getFileName(type, version) + ", no need to download again!");
             downloadId = -10001;
             Intent intent = new Intent(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
             context.sendBroadcast(intent);
             //downloadFile.delete();
         } else {
-            //创建下载任务,downloadUrl就是下载链接
+            //Create a download task, downloadUrl is the download link
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadURL));
-            //设置通知栏标题
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
-            request.setTitle("OAD下载");
-            request.setDescription("OAD二进制文件正在下载...");
+            request.setTitle("OAD download");
+            request.setDescription("OAD binaries are downloading...");
             request.setAllowedOverRoaming(false);
-            //指定下载路径和下载文件名
+            //Specify the download path and download file name
             request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, getFileNameTemp(type, version));
-            //获取下载管理器
+            //Get download manager
             DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            //将下载任务加入下载队列，否则不会进行下载
+            //Add the download task to the download queue, otherwise it will not download
             downloadId = downloadManager.enqueue(request);
-            LogUtils.i("正在下载 ... downloadId = " + downloadId);
+            LogUtils.i("download ... downloadId = " + downloadId);
         }
     }
 

@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 /**
- * 体温计详情
+ * Thermometer details
  *
  * @author xiongyl 2020/9/24 0:55
  */
