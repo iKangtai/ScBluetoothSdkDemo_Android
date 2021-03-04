@@ -89,5 +89,6 @@
     <string name="ununited">设备还未连接！</string>
     <string name="unsupported_device">不支持的设备</string>
     <string name="record_time">录制时间：</string>
+    <string name="already_latest_ver">当前设备固件已经是最新版本!</string>
 
 </resources>

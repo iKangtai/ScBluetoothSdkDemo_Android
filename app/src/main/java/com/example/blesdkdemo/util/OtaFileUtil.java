@@ -17,6 +17,10 @@ import java.io.File;
  * @author xiongyl 2020/10/16 0:00
  */
 public class OtaFileUtil {
+    //BleTools.TYPE_AKY_3
+    //file:///android_asset/img/yc_v4.06.img
+    //BleTools.TYPE_AKY_4
+    //file:///android_asset/img/YC-399B-TEST-V0.img
     private String downloadURL;
     private String downloadJsonURL;
     private Context context;

@@ -39,7 +39,7 @@
         }
 
         dependencies {
-            implementation(name: 'scbluetoothlib-release-v1.1.7', ext: 'aar')
+            implementation(name: 'scbluetoothlib-release-v1.1.8', ext: 'aar')
         }
 ```
 3.第三种方式，将Demo的ScBluetoothLib模块配置复制到项目中，然后添加实现项目（':ScBluetoothLib'）建立依赖关系

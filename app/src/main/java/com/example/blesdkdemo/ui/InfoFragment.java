@@ -25,11 +25,14 @@ import android.widget.ScrollView;
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.databinding.FragmentInfoBinding;
 import com.example.blesdkdemo.util.OadFileUtil;
+import com.example.blesdkdemo.util.OtaFileUtil;
 import com.hjq.permissions.OnPermission;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 import com.ikangtai.bluetoothsdk.BleCommand;
 import com.ikangtai.bluetoothsdk.ScPeripheralManager;
+import com.ikangtai.bluetoothsdk.http.respmodel.CheckFirmwareVersionResp;
+import com.ikangtai.bluetoothsdk.listener.CheckFirmwareVersionListener;
 import com.ikangtai.bluetoothsdk.listener.ReceiveDataListenerAdapter;
 import com.ikangtai.bluetoothsdk.model.BleCommandData;
 import com.ikangtai.bluetoothsdk.model.ScPeripheral;
@@ -58,6 +61,8 @@ public class InfoFragment extends Fragment {
     private ProgressDialog dialog;
     private ScPeripheral scPeripheral;
     private OadFileUtil oadFileUtil;
+    private OtaFileUtil otaFileUtil;
+
     private ReceiveDataListenerAdapter receiveDataListenerAdapter = new ReceiveDataListenerAdapter() {
         @Override
         public void onReceiveData(String macAddress, List<ScPeripheralData> scPeripheralDataList) {
@@ -76,7 +81,7 @@ public class InfoFragment extends Fragment {
         @Override
         public void onReceiveError(String macAddress, int code, String msg) {
             /**
-             * The code see {@link com.ikangtai.bluetoothsdk.util.BleCode}
+             * The code see {@link BleCode}
              */
             LogUtils.d("onReceiveError:" + code + "  " + msg);
             checkConnectDialog();
@@ -119,6 +124,8 @@ public class InfoFragment extends Fragment {
                     errorMessage = BleCode.getMessage(Integer.decode(value));
                 }
                 showErrorMessage(errorMessage);
+            } else if (type == BleCommand.GET_FIRMWARE_VERSION) {
+                scPeripheral.setVersion(value);
             } else if (scPeripheral.getDeviceType() == BleTools.TYPE_AKY_3 || scPeripheral.getDeviceType() == BleTools.TYPE_AKY_4) {
                 if (type == BleCommand.THERMOMETER_OTA_UPGRADE) {
                     switch (resultCode) {
@@ -137,7 +144,6 @@ public class InfoFragment extends Fragment {
             } else if (scPeripheral.getDeviceType() == BleTools.TYPE_SMART_THERMOMETER) {
                 if (type == BleCommand.GET_THERMOMETER_OAD_IMG_TYPE) {
                     appendConsoleContent("Found newer firmware version, download to update!");
-                    oadFileUtil = new OadFileUtil(getContext());
                     oadFileUtil.handleFirmwareImgABMsg(Integer.valueOf(value));
                 } else if (type == BleCommand.THERMOMETER_OAD_UPGRADE) {
                     switch (resultCode) {
@@ -367,14 +373,23 @@ public class InfoFragment extends Fragment {
             btnOtaUpgrade.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    BleCommandData bleCommandData = new BleCommandData();
-                    bleCommandData.setOtaTime(180);
-                    if (scPeripheral.getDeviceType() == BleTools.TYPE_AKY_3) {
-                        bleCommandData.setOtaImgFilepath("file:///android_asset/img/yc_v4.06.img");
-                    } else if (scPeripheral.getDeviceType() == BleTools.TYPE_AKY_4) {
-                        bleCommandData.setOtaImgFilepath("file:///android_asset/img/YC-399B-TEST-V0.img");
+                    if (!TextUtils.isEmpty(scPeripheral.getVersion())) {
+                        scPeripheralManager.checkFirmwareVersion(scPeripheral, new CheckFirmwareVersionListener() {
+                            @Override
+                            public void checkSuccess(CheckFirmwareVersionResp.Data data) {
+                                if (Double.parseDouble(data.getVersion()) > Double.parseDouble(scPeripheral.getVersion())) {
+                                    otaFileUtil = new OtaFileUtil(getContext(), data.getVersion(), data.getFileUrl());
+                                } else {
+                                    showErrorMessage(getString(R.string.already_latest_ver));
+                                }
+                            }
+
+                            @Override
+                            public void checkFail() {
+                                showErrorMessage(getString(R.string.already_latest_ver));
+                            }
+                        });
                     }
-                    scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.THERMOMETER_OTA_UPGRADE, bleCommandData);
                 }
             });
         if (btnGetHistoryData != null)
@@ -395,8 +410,24 @@ public class InfoFragment extends Fragment {
             btnOadUpgrade.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //get device current image type
-                    scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.GET_THERMOMETER_OAD_IMG_TYPE);
+                    scPeripheralManager.checkFirmwareVersion(scPeripheral, new CheckFirmwareVersionListener() {
+                        @Override
+                        public void checkSuccess(CheckFirmwareVersionResp.Data data) {
+                            if (Double.parseDouble(data.getVersion()) > Double.parseDouble(scPeripheral.getVersion())) {
+                                oadFileUtil = new OadFileUtil(getContext(), data);
+                                //get device current image type
+                                scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.GET_THERMOMETER_OAD_IMG_TYPE);
+                            } else {
+                                showErrorMessage(getString(R.string.already_latest_ver));
+                            }
+                        }
+
+                        @Override
+                        public void checkFail() {
+                            showErrorMessage(getString(R.string.already_latest_ver));
+                        }
+                    });
+
                 }
             });
         }
@@ -574,9 +605,9 @@ public class InfoFragment extends Fragment {
                 long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -10001);
                 if (oadFileUtil != null && oadFileUtil.getDownloadId() == downloadId) {
                     LogUtils.i("The OAD binary file download is complete, and the DFU upgrade begins!");
-                    String filePath = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileName(oadFileUtil.getOadFileType(),oadFileUtil.getVersion());
+                    String filePath = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileName(oadFileUtil.getOadFileType(), oadFileUtil.getVersion());
                     if (downloadId != -10001) {
-                        String filePathTemp = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileNameTemp(oadFileUtil.getOadFileType(),oadFileUtil.getVersion());
+                        String filePathTemp = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileNameTemp(oadFileUtil.getOadFileType(), oadFileUtil.getVersion());
                         new File(filePathTemp).renameTo(new File(filePath));
                     }
                     if (!new File(filePath).exists()) {
@@ -588,6 +619,24 @@ public class InfoFragment extends Fragment {
                     BleCommandData bleCommandData = new BleCommandData();
                     bleCommandData.setOadImgFilepath(filePath);
                     scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.THERMOMETER_OAD_UPGRADE, bleCommandData);
+                } else if (otaFileUtil != null && otaFileUtil.getDownloadId() == downloadId) {
+                    LogUtils.i("The OTA binary file download is complete, and the DFU upgrade begins!");
+                    String filePath = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OtaFileUtil.getFileName(otaFileUtil.getLatestVer());
+                    File imgFile = new File(filePath);
+                    if (downloadId != -10001) {
+                        String filePathTemp = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OtaFileUtil.getFileNameTemp(otaFileUtil.getLatestVer());
+                        new File(filePathTemp).renameTo(imgFile);
+                    }
+                    if (!new File(filePath).exists()) {
+                        LogUtils.i("OADMainActivity OTA, download file fail");
+                        return;
+                    }
+                    LogUtils.i("OADMainActivity OTA, filePath = " + filePath);
+
+                    BleCommandData bleCommandData = new BleCommandData();
+                    bleCommandData.setOtaTime(180);
+                    bleCommandData.setOtaImgFilepath(filePath);
+                    scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.THERMOMETER_OTA_UPGRADE, bleCommandData);
                 }
             }
         }
