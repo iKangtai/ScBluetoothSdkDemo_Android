@@ -54,9 +54,10 @@ public class OtaFileUtil {
         } else {
             //Create a download task, downloadUrl is the download link
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadURL));
+            //Set the title of the notification bar
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
-            request.setTitle("OTA download");
-            request.setDescription("OTA binaries are downloading...");
+            request.setTitle("OAD download");
+            request.setDescription("OAD binaries are downloading...");
             request.setAllowedOverRoaming(false);
             //Specify the download path and download file name
             request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, getFileNameTemp(latestVer));
@@ -64,7 +65,7 @@ public class OtaFileUtil {
             DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
             //Add the download task to the download queue, otherwise it will not download
             downloadId = downloadManager.enqueue(request);
-            LogUtils.i("download ... downloadId = " + downloadId);
+            LogUtils.i("downloading ... downloadId = " + downloadId);
         }
     }
 

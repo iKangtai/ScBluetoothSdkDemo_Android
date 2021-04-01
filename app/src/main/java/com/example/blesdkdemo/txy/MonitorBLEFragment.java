@@ -2,7 +2,6 @@ package com.example.blesdkdemo.txy;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothProfile;
 import android.content.DialogInterface;
 import android.os.Build;
@@ -25,7 +24,6 @@ import com.ikangtai.bluetoothsdk.listener.ReceiveDataListenerAdapter;
 import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 import com.ikangtai.bluetoothsdk.model.ScPeripheralData;
 import com.ikangtai.bluetoothsdk.util.BleCode;
-import com.ikangtai.bluetoothsdk.util.BleUtils;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
 
 import java.util.List;
@@ -109,7 +107,7 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
                 dialog.dismiss();
                 dialog = null;
             }
-            LogUtils.d("onReceiveCommandData:" + type + "  " + resultCode + " " + BleUtils.byte2hex(value));
+            //LogUtils.d("onReceiveCommandData:" + type + "  " + resultCode + " " + BleUtils.byte2hex(value));
             if (type == BleCommand.GET_DEVICE_DATA) {
                 byte[] data = value;
                 if (MonitorBLEFragment.this.isRunning) {
@@ -281,7 +279,7 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
                     }
                     //Log.d("decode_frame", " data==444  " + BleUtils.byte2hex(bArr2));
                     i7 = mAudioCompress.decode_frame(bArr2, sArr, frameSize);
-                    Log.e("decode_frame", "result== " + i7);
+                    //Log.e("decode_frame", "result== " + i7);
                     strMsgLog = "";
                     int i9 = 0;
                     while (i9 < frameSize) {

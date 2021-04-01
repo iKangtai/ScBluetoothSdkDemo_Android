@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ScBleSdkAndroid</string>
-    <string name="unbind_success">解绑成功</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_video">Video</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_tools">Tools</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_send">Send</string>
+
+
     <string name="connect_device">连接体温计</string>
     <string name="stop_scan">停止扫描</string>
     <string name="connect_state">获取连接状态</string>
@@ -76,12 +90,12 @@
     <string name="quickening">胎动标记</string>
     <string name="quickening_num">胎动次数</string>
     <string name="quickening_prompt">5秒记录一次胎动！</string>
-    <string name="record">开始录音</string>
-    <string name="recordEnd_if_disconnected">连接中断，是否保存已录音的数据？</string>
-    <string name="recordEnd_if_end">录音结束，是否保存数据？</string>
-    <string name="recordEnd_if_leave">胎心监护中断，是否保存已录音的数据？</string>
-    <string name="recordStart">录音开始！</string>
-    <string name="recordStop">停止录音</string>
+    <string name="record">开始录制</string>
+    <string name="recordEnd_if_disconnected">连接中断，是否保存已录制的数据？</string>
+    <string name="recordEnd_if_end">录制结束，是否保存数据？</string>
+    <string name="recordEnd_if_leave">胎心监护中断，是否保存已录制的数据？</string>
+    <string name="recordStart">开始录制！</string>
+    <string name="recordStop">结束录制</string>
     <string name="save">保存</string>
     <string name="save_failed">保存失败！</string>
     <string name="save_succeed">保存成功！</string>
@@ -89,6 +103,44 @@
     <string name="ununited">设备还未连接！</string>
     <string name="unsupported_device">不支持的设备</string>
     <string name="record_time">录制时间：</string>
-    <string name="already_latest_ver">当前设备固件已经是最新版本!</string>
+    <string name="bind_device">该设备未绑定，是否去绑定？</string>
+    <string name="personal_my_device_bind">绑定</string>
+    <string name="turn_on_ble_hint">请打开手机蓝牙</string>
+    <string name="turn_on_thermometer">按下开关键</string>
+    <string name="check_device_version">设备程序版本校验</string>
+    <string name="unbind_success">解绑成功</string>
+    <string name="bind_success">绑定成功</string>
+    <string name="binding">绑定中...</string>
+
+    <string name="open_location_hint">安卓系统要求打开GPS</string>
+    <string name="locaiton_server_hint">开启后才能扫描和连接体温计</string>
+    <string name="open_location_server_success">位置服务已开启</string>
+    <string name="open_locaiton_service_fail">位置服务未开启</string>
+    <string name="authorize">去授权</string>
+
+    <string name="device_upate_tips">您的设备程序不是最新的，请点击“确定”更新设备程序！</string>
+    <string name="firmware_update_title">设备正在升级程序</string>
+    <string name="firmware_update_content">为了保证良好的蓝牙连接，请始终保持孕橙在屏幕显示，请不要关闭设备</string>
+    <string name="oad">固件升级</string>
+    <string name="oad_scan_str">请打开设备,正在扫描中...</string>
+    <string name="oad_device_found">设备已扫描到,正在连接设备...</string>
+    <string name="oad_check_ver">设备已连接,正在检测设备最新固件版本...</string>
+    <string name="oad_disconnected">设备连接已断开!</string>
+    <string name="get_firmver_fail">获取固件版本失败, 请检查网络!</string>
+    <string name="oad_unSupported">检测您的固件版本为:%s,此版本不支持升级!</string>
+    <string name="need_oad">发现新固件版本: %s,正在下载更新固件! </string>
+    <string name="already_latest_ver">当前设备固件版本为已经是最新版本!</string>
+    <string name="oad_start">开始固件升级</string>
+    <string name="oading">正在固件升级...</string>
+    <string name="oading_time">总时间: %d秒, 还剩下%d秒</string>
+    <string name="oad_check_success">正在检查固件是否升级成功,请稍候...</string>
+    <string name="oad_check_succ_g23">正在检查固件是否升级成功,请重启设备...</string>
+    <string name="oad_suceess">固件升级成功!</string>
+    <string name="oad_fail">固件升级失败!</string>
+    <string name="macAddress">MAC 地址：</string>
+    <string name="deviceVersion">版本号：</string>
+    <string name="bbt_valid_value_post_fail">Temperature reading too high. Please take your temperature again.</string>
+    <string name="save_image_to_local">保存图片</string>
+    <string name="service">客服</string>
 
 </resources>

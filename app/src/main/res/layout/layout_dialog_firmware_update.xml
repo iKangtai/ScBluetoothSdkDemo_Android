@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/app_corner_background"
+    android:orientation="vertical">
+
+    <com.example.blesdkdemo.view.RoundProgressBar
+        android:id="@+id/firmware_update_progress"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/dp_30"
+        app:roundColor="@color/color_e8e8e8"
+        app:roundProgressColor="@color/app_primary_dark_color"
+        app:roundWidth="3dp"
+        app:style="STROKE"
+        app:textColor="@color/color_444444"
+        app:textIsDisplayable="true"
+        app:textSize="@dimen/title_text_size" />
+
+    <TextView
+        android:id="@+id/firmware_update_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="left"
+        android:paddingLeft="@dimen/dp_5"
+        android:paddingTop="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_5"
+        android:paddingBottom="24dp"
+        android:text="@string/firmware_update_title"
+        android:textColor="@color/color_444444"
+        android:textSize="@dimen/button_text_size"
+        android:textStyle="bold" />
+
+
+    <TextView
+        android:id="@+id/firmware_update_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:layout_marginRight="@dimen/dp_30"
+        android:layout_marginBottom="@dimen/dp_30"
+        android:gravity="left"
+        android:lineSpacingExtra="6dp"
+        android:text="@string/firmware_update_content"
+        android:textColor="@color/color_333333"
+        android:textSize="14sp" />
+
+</LinearLayout>

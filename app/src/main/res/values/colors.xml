@@ -18,5 +18,8 @@
 
     <color name="title_background">#FF7486</color>
     <color name="gray_title">#a9a9a9</color>
+    <color name="color_f0f0f0">#f0f0f0</color>
+    <color name="color_333333">#333333</color>
+
 
 </resources>

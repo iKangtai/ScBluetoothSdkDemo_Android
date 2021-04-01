@@ -1,35 +1,30 @@
 package com.example.blesdkdemo.ui;
 
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.blesdkdemo.BleApplication;
 import com.example.blesdkdemo.R;
+import com.example.blesdkdemo.activity.BindDeviceActivity;
 import com.example.blesdkdemo.activity.InfoActivity;
 import com.example.blesdkdemo.adapter.DeviceListAdapter;
 import com.example.blesdkdemo.databinding.FragmentHomeBinding;
 import com.example.blesdkdemo.txy.BleActivity;
-import com.hjq.permissions.OnPermission;
-import com.hjq.permissions.Permission;
-import com.hjq.permissions.XXPermissions;
+import com.example.blesdkdemo.util.CheckBleFeaturesUtil;
 import com.ikangtai.bluetoothsdk.Config;
 import com.ikangtai.bluetoothsdk.ScPeripheralManager;
+import com.ikangtai.bluetoothsdk.info.HardwareInfo;
 import com.ikangtai.bluetoothsdk.listener.ScanResultListener;
+import com.ikangtai.bluetoothsdk.model.HardwareModel;
 import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 import com.ikangtai.bluetoothsdk.util.BleTools;
 import com.ikangtai.bluetoothsdk.util.FileUtil;
-import com.ikangtai.bluetoothsdk.util.LogUtils;
 import com.ikangtai.bluetoothsdk.util.ToastUtils;
 
 import java.io.BufferedWriter;
@@ -54,8 +49,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 public class HomeFragment extends Fragment {
     private ScPeripheralManager scPeripheralManager;
     private List<ScPeripheral> mDeviceList = new ArrayList<>();
-    public final static int REQUEST_LOCATION_SETTINGS = 1000;
-    public final static int REQUEST_BLE_SETTINGS_CODE = 1001;
     private FragmentHomeBinding fragmentHomeBinding;
     private HomeViewModel homeViewModel;
 
@@ -74,7 +67,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(contentView, savedInstanceState);
 
         scPeripheralManager = ScPeripheralManager.getInstance();
-        String logFilePath = new File(FileUtil.createRootPath(getContext()), "log_test.txt").getAbsolutePath();
+        String logFilePath = new File(FileUtil.createRootPath(getContext()), "bleSdkLog.txt").getAbsolutePath();
         BufferedWriter logWriter = null;
         try {
             logWriter = new BufferedWriter(new FileWriter(logFilePath, true), 2048);
@@ -86,20 +79,15 @@ public class HomeFragment extends Fragment {
          * 1. {@link Config.Builder#logWriter(Writer)}
          * 2. {@link Config.Builder#logFilePath(String)}
          */
-        Config config = new Config.Builder().logWriter(logWriter).forceOutsideSendAck(false).build();
+        Config config = new Config.Builder().logWriter(logWriter).build();
         //Config config = new Config.Builder().logFilePath(logFilePath).build();
         //sdk init
         scPeripheralManager.init(getContext(), config);
-
-        //Register to receive Bluetooth switch broadcast
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        getActivity().registerReceiver(receiver, filter);
         //Scan nearby Bluetooth devices
         fragmentHomeBinding.searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!checkBleFeatures()) {
+                if (!CheckBleFeaturesUtil.checkBleFeatures(HomeFragment.this)) {
                     return;
                 }
                 homeViewModel.getIsSearching().setValue(true);
@@ -137,13 +125,32 @@ public class HomeFragment extends Fragment {
             public void onClick(ScPeripheral scPeripheral) {
                 homeViewModel.getIsSearching().setValue(false);
                 scPeripheralManager.stopScan();
-                String macAddress = scPeripheral.getMacAddress();
-                BleApplication.getInstance().appPreferences.saveLastDeviceAddress(macAddress);
-                Intent intent = null;
                 if (scPeripheral.getDeviceType() == BleTools.TYPE_UNKNOWN) {
                     appendConsoleContent(getString(R.string.unsupported_device));
                     return;
-                } else if (scPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY) {
+                }
+                HardwareInfo hardwareInfo = HardwareInfo.toHardwareInfo(scPeripheral);
+                List<HardwareInfo> bindHardwareInfoList = HardwareModel.hardwareList(getContext());
+                if (!bindHardwareInfoList.contains(hardwareInfo)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext()).setTitle(R.string.tips)
+                            .setMessage(R.string.bind_device).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    startActivity(new Intent(getContext(), BindDeviceActivity.class));
+                                }
+                            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            });
+                    builder.create().show();
+                    return;
+                }
+                String macAddress = scPeripheral.getMacAddress();
+                BleApplication.getInstance().appPreferences.saveLastDeviceAddress(macAddress);
+                Intent intent;
+                if (scPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY) {
                     intent = new Intent(getContext(), BleActivity.class);
                 } else {
                     intent = new Intent(getContext(), InfoActivity.class);
@@ -175,106 +182,16 @@ public class HomeFragment extends Fragment {
         }, 20000);
     }
 
-    /**
-     * Before the scan starts, you need to check the positioning service switch above 6.0, the positioning authority of the system above 6.0, and the Bluetooth switch
-     *
-     * @return
-     */
-    private boolean checkBleFeatures() {
-        //Check Bluetooth Location Service
-        if (!BleTools.isLocationEnable(getContext())) {
-            Intent locationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivityForResult(locationIntent, REQUEST_LOCATION_SETTINGS);
-            return false;
-        }
-        //Check Bluetooth location permission
-        if (!BleTools.checkBlePermission(getContext())) {
-            XXPermissions.with(getActivity())
-                    .permission(Permission.Group.LOCATION)
-                    .request(new OnPermission() {
-                        @Override
-                        public void hasPermission(List<String> granted, boolean isAll) {
-                            if (isAll) {
-                                //do something
-                            }
-                        }
-
-                        @Override
-                        public void noPermission(List<String> denied, boolean quick) {
-                            if (quick) {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext()).setTitle(R.string.tips)
-                                        .setMessage(R.string.request_location_premisson).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, int i) {
-                                                XXPermissions.gotoPermissionSettings(getContext());
-                                            }
-                                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, int i) {
-                                                dialogInterface.dismiss();
-                                            }
-                                        });
-                                builder.create().show();
-
-                            } else {
-                                appendConsoleContent(getString(R.string.request_location_premisson));
-                            }
-                        }
-                    });
-            return false;
-        }
-        //Check the Bluetooth switch
-        if (!BleTools.checkBleEnable()) {
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(intent, REQUEST_BLE_SETTINGS_CODE);
-            return false;
-        }
-        return true;
-    }
-
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action != null && action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
-                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-                if (state == BluetoothAdapter.STATE_OFF) {
-                    LogUtils.d("Bluetooth is off");
-                    appendConsoleContent("Bluetooth off");
-                } else if (state == BluetoothAdapter.STATE_ON) {
-                    LogUtils.d("Bluetooth is on");
-                    appendConsoleContent("Bluetooth is on");
-                }
-            }
-        }
-
-    };
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_LOCATION_SETTINGS) {
-            boolean openLocationServer = BleTools.isLocationEnable(getContext());
-            if (openLocationServer) {
-                LogUtils.e("Location service: The user manually sets the location service");
-                appendConsoleContent(getString(R.string.location_service_turn_on));
-            } else {
-                LogUtils.e("Location service: The user manually set the location service is not enabled");
-                appendConsoleContent(getString(R.string.location_service_turn_off));
-            }
-        } else if (requestCode == REQUEST_BLE_SETTINGS_CODE) {
-            boolean enable = BleTools.isLocationEnable(getContext());
-            if (!enable) {
-                appendConsoleContent(getString(R.string.request_location_premisson_tips));
-            }
-        }
+        CheckBleFeaturesUtil.handBleFeaturesResult(getContext(), requestCode, resultCode);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getActivity().unregisterReceiver(receiver);
         if (scPeripheralManager != null) {
             scPeripheralManager.stopScan();
             scPeripheralManager.disconnectPeripheral();

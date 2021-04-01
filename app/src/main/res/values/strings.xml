@@ -15,7 +15,6 @@
     <string name="menu_send">Send</string>
 
 
-    <string name="unbind_success">Unbind successful</string>
     <string name="connect_device">Connect device</string>
     <string name="stop_scan">Stop scan</string>
     <string name="connect_state">Connection status</string>
@@ -104,5 +103,43 @@
     <string name="ununited">The device is not connected!</string>
     <string name="unsupported_device">Unsupported device</string>
     <string name="record_time">Record time:</string>
+    <string name="bind_device">The device is not bound, do you want to bind it?</string>
+    <string name="personal_my_device_bind">Bind</string>
+    <string name="turn_on_ble_hint">Please turn on the phone bluetooth</string>
+    <string name="turn_on_thermometer">Press the power button</string>
+    <string name="check_device_version">Device program version verification</string>
+    <string name="unbind_success">Unbind successfully</string>
+    <string name="bind_success">Bind successfully</string>
+    <string name="binding">binding...</string>
+
+    <string name="open_location_hint">open Location Service</string>
+    <string name="locaiton_server_hint">you can search and connect thermometer equipment.</string>
+    <string name="open_location_server_success">location service open</string>
+    <string name="open_locaiton_service_fail">location service open fail</string>
+    <string name="authorize">Authorization</string>
+
+    <string name="device_upate_tips">Your device program is not up to date, please click "OK" to update the device program!</string>
+    <string name="firmware_update_title">The device is being upgraded</string>
+    <string name="firmware_update_content">In order to ensure a good Bluetooth connection, please always keep the pregnant orange displayed on the screen, please do not turn off the device</string>
+    <string name="oad">Update</string>
+    <string name="oad_scan_str">Please open device, scanning...</string>
+    <string name="oad_device_found">Device found, connecting...</string>
+    <string name="oad_check_ver">Device connected, checking the latest firmware version...</string>
+    <string name="oad_disconnected">Device disconnected!</string>
+    <string name="get_firmver_fail">Check firmware version failed, please check your network!</string>
+    <string name="oad_unSupported">Found your firmware version is :%s, which OAD is not supported!</string>
+    <string name="need_oad">Found newer firmware version: %s, download to update!</string>
     <string name="already_latest_ver">The current firmware is already the latest version!</string>
+    <string name="oad_start">Start OAD</string>
+    <string name="oading">Firmware is upgrading...</string>
+    <string name="oading_time">Time in total: %d sec, left %1$d sec</string>
+    <string name="oad_check_success">Checking if OAD is successful, please wait...</string>
+    <string name="oad_check_succ_g23">Checking if OAD is successful, please restart device...</string>
+    <string name="oad_suceess">Firmware is successfully </string>
+    <string name="oad_fail">Firmware upgrade failed!</string>
+    <string name="macAddress">MAC Address:</string>
+    <string name="deviceVersion">Version:</string>
+    <string name="bbt_valid_value_post_fail">Temperature reading too high. Please take your temperature again.</string>
+    <string name="save_image_to_local">Save Image</string>
+    <string name="service">service</string>
 </resources>

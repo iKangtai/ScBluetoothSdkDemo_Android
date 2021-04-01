@@ -25,6 +25,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.InfoActivity"></activity>
+        <activity android:name=".activity.BindDeviceActivity"></activity>
+        <activity android:name=".activity.BindResultActivity"></activity>
+        <activity android:name=".activity.ChatActivity"></activity>
         <activity android:name=".txy.BleActivity"></activity>
         <activity android:name=".txy.HistoryActivity"></activity>
     </application>

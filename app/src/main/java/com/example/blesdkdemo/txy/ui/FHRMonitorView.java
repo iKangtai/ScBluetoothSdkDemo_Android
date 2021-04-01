@@ -1,4 +1,5 @@
 package com.example.blesdkdemo.txy.ui;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -8,7 +9,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
 
 import com.example.blesdkdemo.BleApplication;
 import com.example.blesdkdemo.R;
@@ -173,6 +173,31 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
             }
         }
         return arrayList;
+    }
+
+    public FhrAllData getSaveAllFHR(int i, int i2) {
+        FhrAllData fhrData = new FhrAllData();
+        ArrayList<Integer> qn = new ArrayList<>();
+        ArrayList<Integer> v = new ArrayList<>();
+        if (i < 0) {
+            i = 0;
+        }
+        if (this.fhrDataList.size() > 1 && i <= i2) {
+            while (i <= i2) {
+                FHRData fHRData = this.fhrDataList.get(i);
+                if (fHRData.getFhr() == -2) {
+                    break;
+                }
+                v.add(fHRData.getFhr() < 0 ? 0 : fHRData.getFhr());
+                if (fHRData.isQuickening()) {
+                    qn.add(v.size() - 1);
+                }
+                i++;
+            }
+        }
+        fhrData.setQn(qn);
+        fhrData.setV(v);
+        return fhrData;
     }
 
     public FHRMonitorView(Context context) {

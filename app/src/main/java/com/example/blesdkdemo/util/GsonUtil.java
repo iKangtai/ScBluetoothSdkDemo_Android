@@ -20,6 +20,13 @@ public class GsonUtil {
         return null;
     }
 
+    public static String toJson(Object obj) {
+        if (obj != null) {
+            return gson.toJson(obj);
+        }
+        return null;
+    }
+
     public static <T> T getJsonData(String str, Object obj) {
         return obj instanceof Type ? (T) gson.fromJson(str, (Type) obj) : (T) gson.fromJson(str, (Class) ((Class) obj));
     }

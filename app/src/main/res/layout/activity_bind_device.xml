@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.example.blesdkdemo.view.TopBar
+        android:id="@+id/topBar"
+        style="@style/ToolBarStyle"
+        custom:midText="@string/personal_my_device_bind"
+        />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/topBar"
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center">
+
+        <LinearLayout
+            android:id="@+id/bindStep"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="300dp"
+                android:layout_marginLeft="@dimen/dp_40"
+                android:layout_marginRight="@dimen/dp_30"
+                android:orientation="vertical">
+
+                <com.example.blesdkdemo.view.loading.LoadingView
+                    android:id="@+id/stepFirstLoading3"
+                    android:layout_width="40dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/device_binding_page_ic_unselected" />
+
+                <com.example.blesdkdemo.view.loading.LoadingView
+                    android:id="@+id/stepSecondLoading3"
+                    android:layout_width="40dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/device_binding_page_ic_unselected" />
+
+                <com.example.blesdkdemo.view.loading.LoadingView
+                    android:id="@+id/stepThirdLoading3"
+                    android:layout_width="40dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/device_binding_page_ic_unselected" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/stepFirstState3"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginRight="@dimen/dp_40"
+                    android:layout_weight="1"
+                    android:drawableRight="@drawable/device_binding_page_pic_bluetooth_unselected"
+                    android:gravity="center_vertical"
+                    android:text="@string/turn_on_ble_hint"
+                    android:textColor="@color/color_444444" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/color_f0f0f0" />
+
+                <TextView
+                    android:id="@+id/stepSecondState3"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginRight="@dimen/dp_40"
+                    android:layout_weight="1"
+                    android:drawableRight="@drawable/device_binding_page_pic_device_unselected"
+                    android:gravity="center_vertical"
+                    android:text="@string/turn_on_thermometer"
+                    android:textColor="@color/color_444444" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/color_f0f0f0" />
+
+                <TextView
+                    android:id="@+id/stepThirdState3"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginRight="@dimen/dp_40"
+                    android:layout_weight="1"
+                    android:drawableRight="@drawable/device_binding_page_pic_check_unselected"
+                    android:gravity="center_vertical"
+                    android:text="@string/check_device_version"
+                    android:textColor="@color/color_444444" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/color_f0f0f0" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

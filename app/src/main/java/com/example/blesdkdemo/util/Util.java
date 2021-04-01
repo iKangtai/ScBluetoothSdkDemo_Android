@@ -1,12 +1,8 @@
 package com.example.blesdkdemo.util;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.graphics.Point;
-import android.os.Build;
 import android.os.StatFs;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 

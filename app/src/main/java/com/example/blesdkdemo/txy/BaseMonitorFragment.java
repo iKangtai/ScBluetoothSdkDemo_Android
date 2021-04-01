@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.blesdkdemo.AppInfo;
 import com.example.blesdkdemo.Constant;
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.databinding.FragmentMonitorBinding;
@@ -23,8 +24,11 @@ import com.example.blesdkdemo.txy.db.HistoryBean;
 import com.example.blesdkdemo.txy.db.HistoryDao;
 import com.example.blesdkdemo.txy.ui.FHRData;
 import com.example.blesdkdemo.txy.ui.FHRMonitorView;
+import com.example.blesdkdemo.txy.ui.FhrAllData;
 import com.example.blesdkdemo.util.GsonUtil;
 import com.example.blesdkdemo.util.Util;
+import com.ikangtai.bluetoothsdk.info.TxyRecordInfo;
+import com.ikangtai.bluetoothsdk.model.TxyRecordModel;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
 import com.ikangtai.bluetoothsdk.util.PcmToWavUtil;
 
@@ -269,10 +273,29 @@ public class BaseMonitorFragment extends BaseFragment {
         new Thread() {
             public void run() {
                 final ArrayList<FHRData> saveFHR = BaseMonitorFragment.this.monitorView.getSaveFHR(BaseMonitorFragment.this.fhrStartIndex, BaseMonitorFragment.this.fhrEndIndex);
-                String replace = BaseMonitorFragment.this.audio_path_name.replace(".pcm", ".wav");
-                final boolean pcmToWav = new PcmToWavUtil().pcmToWav(BaseMonitorFragment.this.audio_path_name, replace);
-                final HistoryBean historyBean = new HistoryBean(BaseMonitorFragment.this.save_time, GsonUtil.toJson(saveFHR), replace);
+                String audioFilePath = BaseMonitorFragment.this.audio_path_name.replace(".pcm", ".wav");
+                final boolean pcmToWav = new PcmToWavUtil().pcmToWav(BaseMonitorFragment.this.audio_path_name, audioFilePath);
+                final HistoryBean historyBean = new HistoryBean(BaseMonitorFragment.this.save_time, GsonUtil.toJson(saveFHR), audioFilePath);
                 final int addHistory = pcmToWav ? BaseMonitorFragment.this.historyDao.addHistory(historyBean) : 0;
+
+                final TxyRecordInfo recordInfo = new TxyRecordInfo();
+                recordInfo.setAppId(Constant.appId);
+                recordInfo.setAppSecret(Constant.appSecret);
+                recordInfo.setUnionId(Constant.unionId);
+                recordInfo.setSdkVersion(AppInfo.getInstance().getVersion());
+                recordInfo.setPhoneInfo(AppInfo.getPhoneProducer() + " " + AppInfo.getPhoneModel());
+                recordInfo.setAudioFile(new File(audioFilePath));
+                recordInfo.setFileExtension("wav");
+
+                FhrAllData fhrAllData = BaseMonitorFragment.this.monitorView.getSaveAllFHR(BaseMonitorFragment.this.fhrStartIndex, BaseMonitorFragment.this.fhrEndIndex);
+                recordInfo.setHistory(GsonUtil.toJson(fhrAllData));
+                recordInfo.setDuration((int) BaseMonitorFragment.this.monitorView.getRecordingTime(BaseMonitorFragment.this.fhrStartIndex) / 1000);
+                recordInfo.setQuickening(BaseMonitorFragment.this.monitorView.getQuickeningNum());
+                recordInfo.setAverageFhr(BaseMonitorFragment.this.monitorView.getAvaFHR());
+                recordInfo.setRecordCreateTime(System.currentTimeMillis() / 1000);
+
+                //胎心记录保存SAAS服务器
+                TxyRecordModel.saveTxyRecordInfo(recordInfo);
                 BaseMonitorFragment.this.mActivity.runOnUiThread(new Runnable() {
                     public void run() {
                         if (!pcmToWav) {

@@ -1,6 +1,7 @@
 package com.example.blesdkdemo.txy;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -8,8 +9,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.blesdkdemo.Constant;
 import com.example.blesdkdemo.R;
+import com.example.blesdkdemo.activity.ChatActivity;
+import com.example.blesdkdemo.util.ChatUrlUtil;
 import com.hjq.permissions.Permission;
+import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -31,9 +36,12 @@ public class BleActivity extends AppCompatActivity {
     private MonitorBLEFragment mainBLEFragment;
     private TextView tv_error;
     private ImageView iv_back;
+    private ImageView iv_service;
+    private ScPeripheral scPeripheral;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        scPeripheral = (ScPeripheral) getIntent().getSerializableExtra("connectDevice");
         setContentView(R.layout.activity_txy_ble);
         initView();
         requestPermission();
@@ -46,6 +54,15 @@ public class BleActivity extends AppCompatActivity {
         layout_error = findViewById(R.id.layout_error);
         iv_back = findViewById(R.id.iv_back);
         tv_error = findViewById(R.id.tv_error);
+        iv_service = findViewById(R.id.iv_service);
+        iv_service.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(BleActivity.this, ChatActivity.class);
+                intent.putExtra("url", ChatUrlUtil.getChatUrl(Constant.appId, Constant.appSecret, Constant.unionId, 18, 20, 5, scPeripheral.getMacAddress()));
+                startActivity(intent);
+            }
+        });
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

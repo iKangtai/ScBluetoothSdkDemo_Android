@@ -414,7 +414,7 @@ public class InfoFragment extends Fragment {
                         @Override
                         public void checkSuccess(CheckFirmwareVersionResp.Data data) {
                             if (Double.parseDouble(data.getVersion()) > Double.parseDouble(scPeripheral.getVersion())) {
-                                oadFileUtil = new OadFileUtil(getContext(), data);
+                                oadFileUtil = new OadFileUtil(getContext(), data.getVersion(), data.getFileUrl());
                                 //get device current image type
                                 scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.GET_THERMOMETER_OAD_IMG_TYPE);
                             } else {
@@ -605,9 +605,9 @@ public class InfoFragment extends Fragment {
                 long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -10001);
                 if (oadFileUtil != null && oadFileUtil.getDownloadId() == downloadId) {
                     LogUtils.i("The OAD binary file download is complete, and the DFU upgrade begins!");
-                    String filePath = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileName(oadFileUtil.getOadFileType(), oadFileUtil.getVersion());
+                    String filePath = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileName(oadFileUtil.getOadFileType(), oadFileUtil.getLatestVer());
                     if (downloadId != -10001) {
-                        String filePathTemp = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileNameTemp(oadFileUtil.getOadFileType(), oadFileUtil.getVersion());
+                        String filePathTemp = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OadFileUtil.getFileNameTemp(oadFileUtil.getOadFileType(), oadFileUtil.getLatestVer());
                         new File(filePathTemp).renameTo(new File(filePath));
                     }
                     if (!new File(filePath).exists()) {
