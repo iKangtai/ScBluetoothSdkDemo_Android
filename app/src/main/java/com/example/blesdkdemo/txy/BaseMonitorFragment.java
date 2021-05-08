@@ -212,11 +212,26 @@ public class BaseMonitorFragment extends BaseFragment {
         long currentTimeMillis = System.currentTimeMillis();
         this.save_time = this.formatSaveTime.format(Long.valueOf(currentTimeMillis));
         String format = this.formatSaveAudioNameTime.format(Long.valueOf(currentTimeMillis));
-        this.audio_path_name = this.mContext.getExternalFilesDir(Environment.DIRECTORY_AUDIOBOOKS) + "/audio_" + format + ".pcm";
+        this.audio_path_name = getAudioPath(this.mContext)+ "/audio_" + format + ".pcm";
         this.fhrStartIndex = this.monitorView.getFHRIndex();
         setMonitorTime();
         this.btn_switch.setText(R.string.recordStop);
         Toast.makeText(this.mContext, getResources().getString(R.string.recordStart), Toast.LENGTH_SHORT).show();
+    }
+    public static String getAudioPath(Context context) {
+        String storagePath;
+        File contextExternalFilesDir = context.getExternalFilesDir(null);
+        if (contextExternalFilesDir == null) {
+            contextExternalFilesDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
+            storagePath = contextExternalFilesDir.getAbsolutePath();
+        } else {
+            storagePath = contextExternalFilesDir.getAbsolutePath() + "/audio";
+        }
+        File file = new File(storagePath);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        return storagePath;
     }
 
     public void recordEnd(String str) {
