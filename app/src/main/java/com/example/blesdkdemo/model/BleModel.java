@@ -184,13 +184,13 @@ public class BleModel {
             @Override
             public void onReceiveCommandData(String macAddress, int type, int resultCode, String value) {
                 super.onReceiveCommandData(macAddress, type, resultCode, value);
-                LogUtils.d("onReceiveCommandData:" + type + "  " + resultCode + " " + value);
                 if (resultCode == BleCommand.ResultCode.RESULT_FAIL) {
                     return;
                 }
                 if (AppInfo.getInstance().isOADConnectActive()) {
                     return;
                 }
+                LogUtils.d("onReceiveCommandData:" + type + "  " + resultCode + " " + value);
                 switch (type) {
                     case BleCommand.GET_FIRMWARE_VERSION:
                         BleCommandData commandData = new BleCommandData();

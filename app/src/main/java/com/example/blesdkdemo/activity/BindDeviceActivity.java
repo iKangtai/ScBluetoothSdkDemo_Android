@@ -16,6 +16,7 @@ import com.example.blesdkdemo.view.TopBar;
 import com.example.blesdkdemo.view.dialog.BleAlertDialog;
 import com.example.blesdkdemo.view.dialog.FirmwareUpdateDialog;
 import com.example.blesdkdemo.view.loading.LoadingView;
+import com.google.gson.Gson;
 import com.ikangtai.bluetoothsdk.ScPeripheralManager;
 import com.ikangtai.bluetoothsdk.http.respmodel.CheckFirmwareVersionResp;
 import com.ikangtai.bluetoothsdk.info.HardwareInfo;
@@ -203,6 +204,11 @@ public class BindDeviceActivity extends AppCompatActivity {
      */
     public void checkFirmwareVersion(ScPeripheral scPeripheral) {
         Log.i(TAG, "check firmware version");
+        boolean mockData = false;
+        if (mockData) {
+            checkFirmwareVersionMock(scPeripheral);
+            return;
+        }
         ScPeripheralManager.getInstance().checkFirmwareVersion(scPeripheral, new CheckFirmwareVersionListener() {
             @Override
             public void checkSuccess(final CheckFirmwareVersionResp.Data data) {
@@ -233,6 +239,51 @@ public class BindDeviceActivity extends AppCompatActivity {
                 bindSuccess();
             }
         });
+
+    }
+
+    /**
+     * Mock Check whether the firmware version needs to be upgraded
+     */
+    public void checkFirmwareVersionMock(ScPeripheral scPeripheral) {
+        int deviceType = scPeripheral.getDeviceType();
+        CheckFirmwareVersionResp firmwareVersionResp = null;
+        if (deviceType == BleTools.TYPE_SMART_THERMOMETER) {
+            //旧三代体温计
+            String jsonData = "{\"code\":200,\"message\":\"Success\",\"data\":{\"fileUrl\":\"{\\\"A\\\":\\\"http://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/A31/Athermometer.bin\\\",\\\"B\\\":\\\"http://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/A31/Bthermometer.bin\\\"}\\r\\n\",\"version\":\"3.68\",\"type\":1}}";
+            firmwareVersionResp = new Gson().fromJson(jsonData, CheckFirmwareVersionResp.class);
+        } else if (deviceType == BleTools.TYPE_AKY_3 || deviceType == BleTools.TYPE_AKY_4) {
+            //新三代四代体温计
+            String jsonData = "{\"code\":200,\"message\":\"Success\",\"data\":{\"fileUrl\":\"https://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/A32/thermometer_6.01.img\",\"version\":\"6.01\",\"type\":2}}";
+            firmwareVersionResp = new Gson().fromJson(jsonData, CheckFirmwareVersionResp.class);
+        } else if (deviceType == BleTools.TYPE_LJ_TXY) {
+            //胎心仪FD120A
+            String jsonData = "{\"code\":200,\"message\":\"Success\",\"data\":{\"fileUrl\":\"https://yunchengfile.oss-cn-beijing.aliyuncs.com/firmware/FD120A/txy_1.0.1.img\",\"version\":\"1.01\",\"type\":3}}";
+            firmwareVersionResp = new Gson().fromJson(jsonData, CheckFirmwareVersionResp.class);
+        }
+
+        if (firmwareVersionResp != null && firmwareVersionResp.getData() != null) {
+            final CheckFirmwareVersionResp.Data data = firmwareVersionResp.getData();
+            data.setMockData(true);
+            new BleAlertDialog(BindDeviceActivity.this).builder()
+                    .setTitle(getString(R.string.tips))
+                    .setMsg(getString(R.string.device_upate_tips))
+                    .setCancelable(false)
+                    .setCanceledOnTouchOutside(false)
+                    .setPositiveButton(getString(R.string.ok), new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            new FirmwareUpdateDialog(BindDeviceActivity.this, hardwareInfo, data).builder().initEvent(new FirmwareUpdateDialog.IEvent() {
+                                @Override
+                                public void onDismiss() {
+                                    bindSuccess();
+                                }
+                            }).show();
+                        }
+                    }).show();
+        } else {
+            bindSuccess();
+        }
 
     }
 

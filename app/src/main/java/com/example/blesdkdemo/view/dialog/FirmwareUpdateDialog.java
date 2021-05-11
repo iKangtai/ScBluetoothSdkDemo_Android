@@ -1,5 +1,8 @@
 package com.example.blesdkdemo.view.dialog;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.app.DownloadManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
@@ -8,12 +11,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Environment;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
 import com.example.blesdkdemo.AppInfo;
@@ -26,10 +31,13 @@ import com.ikangtai.bluetoothsdk.ScPeripheralManager;
 import com.ikangtai.bluetoothsdk.http.respmodel.CheckFirmwareVersionResp;
 import com.ikangtai.bluetoothsdk.info.HardwareInfo;
 import com.ikangtai.bluetoothsdk.listener.ReceiveDataListenerAdapter;
+import com.ikangtai.bluetoothsdk.listener.ScanResultListener;
 import com.ikangtai.bluetoothsdk.model.BleCommandData;
 import com.ikangtai.bluetoothsdk.model.HardwareModel;
+import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 import com.ikangtai.bluetoothsdk.model.ScPeripheralData;
 import com.ikangtai.bluetoothsdk.util.BleCode;
+import com.ikangtai.bluetoothsdk.util.BleTools;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
 
 import java.io.File;
@@ -89,7 +97,7 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
                         if (OAD_COMPLETE && !TextUtils.isEmpty(value)) {
                             String firmwareVerUsing = value;
                             if (oadFileUtil != null) {
-                                if (TextUtils.equals(firmwareVerUsing, oadFileUtil.getLatestVer())) {
+                                if (TextUtils.equals(firmwareVerUsing, oadFileUtil.getLatestVer()) || versionData.isMockData()) {
                                     LogUtils.i("检查固件升级成功:" + firmwareVerUsing);
                                     showUpgradeState(context.getString(R.string.oad_suceess),
                                             context.getString(R.string.ok));
@@ -100,7 +108,7 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
                                             context.getString(R.string.ok));
                                 }
                             } else if (otaFileUtil != null) {
-                                if (TextUtils.equals(firmwareVerUsing, otaFileUtil.getLatestVer())) {
+                                if (TextUtils.equals(firmwareVerUsing, otaFileUtil.getLatestVer()) || versionData.isMockData()) {
                                     LogUtils.i("检查OTA升级成功:" + firmwareVerUsing);
                                     showUpgradeState(context.getString(R.string.oad_suceess),
                                             context.getString(R.string.ok));
@@ -178,14 +186,86 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
                 if (state == BluetoothProfile.STATE_CONNECTED) {
                     LogUtils.i("The device is connected " + macAddress);
                     AppInfo.getInstance().setThermometerState(true);
+                    if (OAD_COMPLETE && versionData.isMockData() && versionData.getType() == 3) {
+                        LogUtils.i("检查固件升级成功");
+                        showUpgradeState(context.getString(R.string.oad_suceess),
+                                context.getString(R.string.ok));
+                        upgradeOADSuccess();
+                    }
                 } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
                     LogUtils.i("Device disconnected " + macAddress);
                     AppInfo.getInstance().setThermometerState(false);
+                    if (OAD_COMPLETE) {
+                        restartScan();
+                    }
                 }
                 refreshBleSate();
             }
         };
         scPeripheralManager.addReceiveDataListener(receiveDataListenerAdapter);
+    }
+
+    private Handler handler;
+    private boolean mScanning;
+    private Runnable scanRunnable = new Runnable() {
+        @Override
+        public void run() {
+            scanLeDevice();
+        }
+    };
+
+    public void restartScan() {
+        stopScan();
+        startScan();
+    }
+
+    public void startScan() {
+        if (!mScanning) {
+            if (handler == null) {
+                handler = new Handler();
+            }
+            handler.postDelayed(scanRunnable, 1500);
+        }
+    }
+
+    public void stopScan() {
+        mScanning = false;
+        LogUtils.i("Stop scanning");
+        if (handler != null) {
+            handler.removeCallbacks(scanRunnable);
+        }
+        try {
+            scPeripheralManager.stopScan();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void scanLeDevice() {
+        mScanning = true;
+        scPeripheralManager.startScan(new ScanResultListener() {
+            @Override
+            public void onScannerResult(List<ScPeripheral> deviceList) {
+                if (deviceList != null && mScanning) {
+                    for (int i = 0; i < deviceList.size(); i++) {
+                        ScPeripheral scBluetoothDevice = deviceList.get(i);
+                        if (scBluetoothDevice.getDeviceType() == BleTools.TYPE_UNKNOWN) {
+                            continue;
+                        }
+                        String deviceAddr = scBluetoothDevice.getMacAddress();
+                        if (TextUtils.equals(deviceAddr, hardwareInfo.getHardMacId())) {
+                            LogUtils.i("Device has been scanned! Stop scanning! " + deviceAddr);
+                            stopScan();
+                            LogUtils.i("Start requesting to connect to the device:" + scBluetoothDevice.getMacAddress());
+                            scPeripheralManager.connectPeripheral(scBluetoothDevice.getMacAddress());
+                            break;
+                        }
+                    }
+
+                }
+            }
+        });
+
     }
 
     public FirmwareUpdateDialog builder() {
@@ -206,6 +286,7 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 AppInfo.getInstance().setOADConnectActive(false);
+                stopScan();
                 context.unregisterReceiver(downloadReceiver);
                 scPeripheralManager.removeReceiveDataListener(receiveDataListenerAdapter);
                 if (event != null) {
@@ -217,7 +298,7 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
         initBleSdk();
         context.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         LogUtils.i("获取设备当前固件版本号 = " + hardwareInfo.getHardwareVersion() + ", 开始获取网络上对应固件最新的版本号!");
-        if (hardwareInfo.getHardType() == HardwareInfo.HARD_TYPE_THERMOMETER) {
+        if (hardwareInfo.getHardType() == HardwareInfo.HARD_TYPE_THERMOMETER || versionData.isMockData()) {
             refreshBleSate();
         } else {
             LogUtils.i("检查固件升级失败:不支持");
@@ -253,6 +334,10 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
             handleOADFirmVerMsg(GET_FMV_SUCCESS, latestVer);
             LogUtils.i("获取OAD版本信息成功: version" + latestVer + "  url:" + downloadURL);
         } else if (type == 2) {
+            otaFileUtil = new OtaFileUtil(context, latestVer, downloadURL);
+            handleOADFirmVerMsg(GET_FMV_SUCCESS, latestVer);
+            LogUtils.i("获取OTA版本信息成功: version" + latestVer + "  url:" + downloadURL);
+        } else if (type == 3) {
             otaFileUtil = new OtaFileUtil(context, latestVer, downloadURL);
             handleOADFirmVerMsg(GET_FMV_SUCCESS, latestVer);
             LogUtils.i("获取OTA版本信息成功: version" + latestVer + "  url:" + downloadURL);
@@ -294,10 +379,24 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
             updateConnect(String.format(context.getString(R.string.need_oad),
                     netFirmVer));
             latestNetFirmVer = netFirmVer;
-            if (otaFileUtil != null) {
-                otaFileUtil.handleFirmwareImgMsg();
-            } else if (oadFileUtil != null) {
-                scPeripheralManager.sendPeripheralCommand(hardwareInfo.getHardMacId(), BleCommand.GET_THERMOMETER_OAD_IMG_TYPE);
+            if (versionData.isMockData() || versionData.getType() == 3) {
+                if (otaFileUtil != null) {
+                    otaFileUtil.handleFirmwareImgMsg();
+                } else if (oadFileUtil != null) {
+                    oadFileUtil.handleFirmwareImgABMsg(0);
+                } else {
+                    updateConnect(String.format(context.getString(R.string.oad_unSupported),
+                            firmVerUsing));
+                }
+            } else {
+                if (otaFileUtil != null) {
+                    otaFileUtil.handleFirmwareImgMsg();
+                } else if (oadFileUtil != null) {
+                    scPeripheralManager.sendPeripheralCommand(hardwareInfo.getHardMacId(), BleCommand.GET_THERMOMETER_OAD_IMG_TYPE);
+                } else {
+                    updateConnect(String.format(context.getString(R.string.oad_unSupported),
+                            firmVerUsing));
+                }
             }
         } else {
             //用户版本已是最新
@@ -321,6 +420,9 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
                     //upgradeOADSuccess();
                 } else {
                     LogUtils.i("固件升级过程中断开体温计");
+                    if (startAnimator != null) {
+                        startAnimator.cancel();
+                    }
                     updateConnect(context.getString(R.string.oad_disconnected));
                     showUpgradeState(context.getString(R.string.oad_disconnected) + "\n" + context.getString(R.string.firmware_update_content),
                             context.getString(R.string.ok));
@@ -407,10 +509,13 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
                         return;
                     }
                     LogUtils.i("OADMainActivity OAD, filePath = " + filePath);
-
-                    BleCommandData bleCommandData = new BleCommandData();
-                    bleCommandData.setOadImgFilepath(filePath);
-                    scPeripheralManager.sendPeripheralCommand(hardwareInfo.getHardMacId(), BleCommand.THERMOMETER_OAD_UPGRADE, bleCommandData);
+                    if (versionData.isMockData()) {
+                        mockUpgrade();
+                    } else {
+                        BleCommandData bleCommandData = new BleCommandData();
+                        bleCommandData.setOadImgFilepath(filePath);
+                        scPeripheralManager.sendPeripheralCommand(hardwareInfo.getHardMacId(), BleCommand.THERMOMETER_OAD_UPGRADE, bleCommandData);
+                    }
                 } else if (otaFileUtil != null && otaFileUtil.getDownloadId() == downloadId) {
                     LogUtils.i("The OTA binary file download is complete, and the DFU upgrade begins!");
                     String filePath = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + OtaFileUtil.getFileName(otaFileUtil.getLatestVer());
@@ -424,15 +529,51 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
                         return;
                     }
                     LogUtils.i("OADMainActivity OTA, filePath = " + filePath);
-
-                    BleCommandData bleCommandData = new BleCommandData();
-                    bleCommandData.setOtaTime(180);
-                    bleCommandData.setOtaImgFilepath(filePath);
-                    scPeripheralManager.sendPeripheralCommand(hardwareInfo.getHardMacId(), BleCommand.THERMOMETER_OTA_UPGRADE, bleCommandData);
+                    if (versionData.isMockData() || versionData.getType() == 3) {
+                        mockUpgrade();
+                    } else {
+                        BleCommandData bleCommandData = new BleCommandData();
+                        bleCommandData.setOtaTime(180);
+                        bleCommandData.setOtaImgFilepath(filePath);
+                        scPeripheralManager.sendPeripheralCommand(hardwareInfo.getHardMacId(), BleCommand.THERMOMETER_OTA_UPGRADE, bleCommandData);
+                    }
                 }
             }
         }
     };
+    private ValueAnimator startAnimator;
+
+    private void mockUpgrade() {
+        progressNum = 0;
+        displayStats();
+        updateGui();
+        try {
+            ValueAnimator.class.getMethod("setDurationScale", float.class).invoke(null, 1f);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        int percent = 100;
+        startAnimator = ValueAnimator.ofInt(0, percent);
+        startAnimator.setDuration(10000);
+        startAnimator.setInterpolator(new AccelerateInterpolator());
+        startAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                progressNum = (int) valueAnimator.getAnimatedValue();
+                displayStats();
+            }
+
+        });
+        startAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                progressNum = 100;
+                displayStats();
+            }
+        });
+        startAnimator.start();
+    }
 
     public FirmwareUpdateDialog initEvent(IEvent event) {
         this.event = event;
