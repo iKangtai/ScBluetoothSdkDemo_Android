@@ -64,6 +64,7 @@ public class BaseMonitorFragment extends BaseFragment {
     protected boolean isRunning = true;
     protected ImageView iv_fhr_icon;
     protected int mFHR;
+    protected int heartIconFlag;
     protected BleActivity mainActivity;
     protected FHRMonitorView monitorView;
     protected boolean needPermission = false;
@@ -106,20 +107,21 @@ public class BaseMonitorFragment extends BaseFragment {
     }
 
     public void onPause() {
+        super.onPause();
         this.isRunning = false;
         this.monitorView.setConnect(false);
-        super.onPause();
     }
 
     public void onStop() {
-        this.monitorView.setBreakType(1);
         super.onStop();
+        this.monitorView.setBreakType(1);
     }
 
     public void onResume() {
+        super.onResume();
         this.isRunning = true;
         this.mFHR = 0;
-        super.onResume();
+        this.heartIconFlag = 0;
         changeSize();
         this.monitorView.setConnect(this.isConnected);
         if (!this.isFragmentHidden) {
@@ -132,6 +134,7 @@ public class BaseMonitorFragment extends BaseFragment {
     }
 
     public void onDestroy() {
+        super.onDestroy();
         this.isCreated = false;
         if (isRecording) {
             File file = new File(this.audio_path_name);
@@ -139,19 +142,21 @@ public class BaseMonitorFragment extends BaseFragment {
                 file.delete();
             }
         }
-        super.onDestroy();
     }
 
-    public void onHiddenChanged(boolean z) {
-        this.isFragmentHidden = z;
-        if (z) {
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        this.isFragmentHidden = hidden;
+        if (hidden) {
             this.monitorView.setPause(true);
         } else {
             this.monitorView.setPause(false);
         }
-        super.onHiddenChanged(z);
     }
 
+    /**
+     * heart icon flash ui
+     */
     protected class IconFlashTH extends Thread {
         protected IconFlashTH() {
         }
@@ -165,8 +170,8 @@ public class BaseMonitorFragment extends BaseFragment {
                     } else if (BaseMonitorFragment.this.mFHR <= 0) {
                         sleep(20);
                     } else {
-                        final int i = 30000 / BaseMonitorFragment.this.mFHR;
-                        if (BaseMonitorFragment.this.mFHR > 30) {
+                        final int time = 30000 / BaseMonitorFragment.this.mFHR;
+                        if (BaseMonitorFragment.this.heartIconFlag == 1) {
                             BaseMonitorFragment.this.iv_fhr_icon.postDelayed(new Runnable() {
                                 public void run() {
                                     if (BaseMonitorFragment.this.iv_fhr_icon != null) {
@@ -177,12 +182,12 @@ public class BaseMonitorFragment extends BaseFragment {
                                                     BaseMonitorFragment.this.iv_fhr_icon.setVisibility(View.INVISIBLE);
                                                 }
                                             }
-                                        }, (long) i);
+                                        }, (long) time);
                                     }
                                 }
-                            }, (long) i);
+                            }, (long) time);
                         }
-                        sleep((long) (i * 2));
+                        sleep((long) (time * 2));
                     }
                 } catch (Exception e) {
                     Log.e(BaseMonitorFragment.TAG, "Exception: ", e);
@@ -191,6 +196,9 @@ public class BaseMonitorFragment extends BaseFragment {
         }
     }
 
+    /**
+     * set quicken num
+     */
     public void setQuickening() {
         if (this.click_quickening_old == 0) {
             this.click_quickening_old = System.currentTimeMillis();
@@ -212,12 +220,13 @@ public class BaseMonitorFragment extends BaseFragment {
         long currentTimeMillis = System.currentTimeMillis();
         this.save_time = this.formatSaveTime.format(Long.valueOf(currentTimeMillis));
         String format = this.formatSaveAudioNameTime.format(Long.valueOf(currentTimeMillis));
-        this.audio_path_name = getAudioPath(this.mContext)+ "/audio_" + format + ".pcm";
+        this.audio_path_name = getAudioPath(this.mContext) + "/audio_" + format + ".pcm";
         this.fhrStartIndex = this.monitorView.getFHRIndex();
         setMonitorTime();
         this.btn_switch.setText(R.string.recordStop);
         Toast.makeText(this.mContext, getResources().getString(R.string.recordStart), Toast.LENGTH_SHORT).show();
     }
+
     public static String getAudioPath(Context context) {
         String storagePath;
         File contextExternalFilesDir = context.getExternalFilesDir(null);
@@ -234,6 +243,7 @@ public class BaseMonitorFragment extends BaseFragment {
         return storagePath;
     }
 
+
     public void recordEnd(String str) {
         isRecording = false;
         this.fhrEndIndex = this.monitorView.getFHRIndex();
@@ -242,6 +252,9 @@ public class BaseMonitorFragment extends BaseFragment {
         showSaveDataDialog(str);
     }
 
+    /**
+     * update recording time
+     */
     public void setMonitorTime() {
         new Thread() {
             public void run() {
@@ -284,6 +297,9 @@ public class BaseMonitorFragment extends BaseFragment {
         }).show();
     }
 
+    /**
+     * save record data
+     */
     public void saveData() {
         new Thread() {
             public void run() {

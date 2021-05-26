@@ -77,10 +77,10 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
     private Paint thickLine;
     private Paint thinLine;
     private long touchUpTime;
-    private float x1;
-    private float x2;
-    private float x3;
-    private float x4;
+    private float downX;
+    private float moveX;
+    private float leftOffsetX;
+    private float rightOffsetX;
     private float xLength;
     private Paint quickeningPaint;
 
@@ -146,9 +146,9 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         invalidate();
     }
 
-    public long getRecordingTime(int i) {
+    public long getRecordingTime(int index) {
         if (this.fhrDataList.size() > 0) {
-            return (long) (((this.fhrDataList.size() - 1) - i) * DATA_TIME);
+            return (long) (((this.fhrDataList.size() - 1) - index) * DATA_TIME);
         }
         return 0;
     }
@@ -157,34 +157,34 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         return this.pointList.size() - 1;
     }
 
-    public ArrayList<FHRData> getSaveFHR(int i, int i2) {
+    public ArrayList<FHRData> getSaveFHR(int fhrStartIndex, int fhrEndIndex) {
         ArrayList<FHRData> arrayList = new ArrayList<>();
-        if (i < 0) {
-            i = 0;
+        if (fhrStartIndex < 0) {
+            fhrStartIndex = 0;
         }
-        if (this.fhrDataList.size() > 1 && i <= i2) {
-            while (i <= i2) {
-                FHRData fHRData = this.fhrDataList.get(i);
+        if (this.fhrDataList.size() > 1 && fhrStartIndex <= fhrEndIndex) {
+            while (fhrStartIndex <= fhrEndIndex) {
+                FHRData fHRData = this.fhrDataList.get(fhrStartIndex);
                 if (fHRData.getFhr() == -2) {
                     break;
                 }
                 arrayList.add(fHRData);
-                i++;
+                fhrStartIndex++;
             }
         }
         return arrayList;
     }
 
-    public FhrAllData getSaveAllFHR(int i, int i2) {
+    public FhrAllData getSaveAllFHR(int fhrStartIndex, int fhrEndIndex) {
         FhrAllData fhrData = new FhrAllData();
         ArrayList<Integer> qn = new ArrayList<>();
         ArrayList<Integer> v = new ArrayList<>();
-        if (i < 0) {
-            i = 0;
+        if (fhrStartIndex < 0) {
+            fhrStartIndex = 0;
         }
-        if (this.fhrDataList.size() > 1 && i <= i2) {
-            while (i <= i2) {
-                FHRData fHRData = this.fhrDataList.get(i);
+        if (this.fhrDataList.size() > 1 && fhrStartIndex <= fhrEndIndex) {
+            while (fhrStartIndex <= fhrEndIndex) {
+                FHRData fHRData = this.fhrDataList.get(fhrStartIndex);
                 if (fHRData.getFhr() == -2) {
                     break;
                 }
@@ -192,7 +192,7 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
                 if (fHRData.isQuickening()) {
                     qn.add(v.size() - 1);
                 }
-                i++;
+                fhrStartIndex++;
             }
         }
         fhrData.setQn(qn);
@@ -210,8 +210,8 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         initView();
     }
 
-    public FHRMonitorView(Context context, AttributeSet attributeSet, int i) {
-        super(context, attributeSet, i);
+    public FHRMonitorView(Context context, AttributeSet attributeSet, int defStyle) {
+        super(context, attributeSet, defStyle);
         initView();
     }
 
@@ -224,7 +224,7 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         this.thickLine = FHRPaint.getThickLine();
         this.baseLine = FHRPaint.getBaseLine();
         this.startPaint = FHRPaint.getStartPaint();
-        this.startPaint.setTextSize(Util.dp2px(13));
+        this.startPaint.setTextSize(Util.dp2px(FHR_TEXT_SIZE));
         this.quickeningPaint = FHRPaint.getQuickeningPaint();
         this.fhrLine = FHRPaint.getFHRLine();
         this.safeFHRPain = FHRPaint.getSafeFHRPaint();
@@ -233,7 +233,7 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         this.minuteText = FHRPaint.getMinuteText();
         this.minuteText.setTextSize(Util.dp2px(16));
         this.startX = Util.dp2px(42);
-        this.startY = (Util.dp2px(13) / 2.0f) + Util.dp2px(9);
+        this.startY = (Util.dp2px(FHR_TEXT_SIZE) / 2.0f) + Util.dp2px(9);
         this.min_scale_height = Util.dp2px(16);
         setFocusableInTouchMode(true);
         setKeepScreenOn(true);
@@ -245,15 +245,15 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         new FHRThread().start();
     }
 
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
-        this.scale_y_px = ((((float) i3) - this.min_scale_height) - this.startY) / ((float) this.num_FHRScaleLine);
-        this.per_cm_of_px = (double) ((i2 * 106) / 720);
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int width,
+                               int height) {
+        this.scale_y_px = ((((float) height) - this.min_scale_height) - this.startY) / ((float) this.num_FHRScaleLine);
+        this.per_cm_of_px = (double) ((width * 106) / 720);
         this.num_x_line = (int) (((double) getWidth()) / this.per_cm_of_px);
         this.xLength = (float) getWidth();
         this.stopY = this.startY + (this.scale_y_px * ((float) this.num_FHRScaleLine));
         long uptimeMillis = SystemClock.uptimeMillis();
         boolean onTouchEvent = onTouchEvent(MotionEvent.obtain(uptimeMillis, uptimeMillis + 100, 2, 0.0f, 0.0f, 1));
-        Log.d("MotionEvent", onTouchEvent + "");
     }
 
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
@@ -261,7 +261,6 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         this.isRunning = false;
     }
 
-    /* access modifiers changed from: private */
     public class MonitorTH extends Thread {
         private MonitorTH() {
         }
@@ -321,11 +320,10 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         this.fhrText.setTextSize(PxDxUtil.sp2px(getContext(), 14));
         canvas2.drawText("" + this.maxFHRScale, this.startX - this.text_FHR_left_offset, this.startY + this.text_FHR_down_offset, this.fhrText);
         for (int i = 1; i <= this.num_FHRScaleLine; i++) {
-            if (i % 3 == 0) {
+            if ((i - 3) % 5 == 0) {
                 Canvas canvas3 = this.canvas;
-                float f = (float) i;
-                canvas3.drawText("" + (this.maxFHRScale - ((i / 3) * this.minFHRScale)), this.startX - this.text_FHR_left_offset, (this.scale_y_px * f) + this.startY + this.text_FHR_down_offset, this.fhrText);
-                this.canvas.drawLine(this.startX, this.startY + (this.scale_y_px * f), this.xLength, this.startY + (f * this.scale_y_px), this.thickLine);
+                canvas3.drawText("" + (this.maxFHRScale - i * 10), this.startX - this.text_FHR_left_offset, (this.scale_y_px * i) + this.startY + this.text_FHR_down_offset, this.fhrText);
+                this.canvas.drawLine(this.startX, this.startY + (this.scale_y_px * i), this.xLength, this.startY + (i * this.scale_y_px), this.thickLine);
             } else {
                 float f2 = (float) i;
                 this.canvas.drawLine(this.startX, this.startY + (this.scale_y_px * f2), this.xLength, this.startY + (f2 * this.scale_y_px), this.thinLine);
@@ -333,20 +331,19 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         }
         this.canvas.drawLine(this.startX, this.startY, (float) getWidth(), this.startY, this.thickLine);
         this.canvas.drawLine(this.startX, this.startY, this.startX, this.stopY, this.thickLine);
-        for (int i2 = 1; i2 < this.num_x_line; i2++) {
-            double d = (double) i2;
-            if (((((double) this.startX) + ((this.per_cm_of_px * 2.0d) * d)) - ((double) this.x3)) + ((double) this.x4) > ((double) this.startX)) {
+        for (int i = 1; i < this.num_x_line; i++) {
+            if (((((double) this.startX) + ((this.per_cm_of_px * 2.0d) * i)) - ((double) this.leftOffsetX)) + ((double) this.rightOffsetX) > ((double) this.startX)) {
                 if (!this.isHistory) {
                     Canvas canvas4 = this.canvas;
-                    canvas4.drawText((this.minuteScale * i2) + "min", (((float) (((double) this.startX) + ((this.per_cm_of_px * 2.0d) * d))) - this.x3) + this.x4, (float) getHeight(), this.minuteText);
+                    canvas4.drawText((this.minuteScale * i) + "min", (((float) (((double) this.startX) + ((this.per_cm_of_px * 2.0d) * i))) - this.leftOffsetX) + this.rightOffsetX, (float) getHeight(), this.minuteText);
                 } else {
                     Canvas canvas5 = this.canvas;
-                    canvas5.drawText(((this.minuteScale * i2) - 1) + "min", (((float) (((double) this.startX) + ((this.per_cm_of_px * 2.0d) * d))) - this.x3) + this.x4, (float) getHeight(), this.minuteText);
+                    canvas5.drawText(((this.minuteScale * i) - 1) + "min", (((float) (((double) this.startX) + ((this.per_cm_of_px * 2.0d) * i))) - this.leftOffsetX) + this.rightOffsetX, (float) getHeight(), this.minuteText);
                 }
             }
-            if (((((double) this.startX) + (this.per_cm_of_px * d)) - ((double) this.x3)) + ((double) this.x4) > ((double) this.startX)) {
-                this.canvas.drawLine((((float) (((double) this.startX) + (this.per_cm_of_px * d))) - this.x3) + this.x4, this.startY, (((float) (((double) this.startX) + (this.per_cm_of_px * d))) - this.x3) + this.x4, this.stopY, this.thinLine);
-                this.canvas.drawLine((((float) (((double) this.startX) + ((this.per_cm_of_px * 2.0d) * d))) - this.x3) + this.x4, this.startY, (((float) (((double) this.startX) + ((this.per_cm_of_px * 2.0d) * d))) - this.x3) + this.x4, this.stopY, this.thickLine);
+            if (((((double) this.startX) + (this.per_cm_of_px * i)) - ((double) this.leftOffsetX)) + ((double) this.rightOffsetX) > ((double) this.startX)) {
+                this.canvas.drawLine((((float) (((double) this.startX) + (this.per_cm_of_px * i))) - this.leftOffsetX) + this.rightOffsetX, this.startY, (((float) (((double) this.startX) + (this.per_cm_of_px * i))) - this.leftOffsetX) + this.rightOffsetX, this.stopY, this.thinLine);
+                this.canvas.drawLine((((float) (((double) this.startX) + ((this.per_cm_of_px * 2.0d) * i))) - this.leftOffsetX) + this.rightOffsetX, this.startY, (((float) (((double) this.startX) + ((this.per_cm_of_px * 2.0d) * i))) - this.leftOffsetX) + this.rightOffsetX, this.stopY, this.thickLine);
             }
         }
         this.canvas.drawRect(this.startX, this.startY + (this.scale_y_px * 8.0f), this.xLength, this.startY + (this.scale_y_px * 13.0f), this.safeFHRPain);
@@ -360,23 +357,23 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         if (this.pointList.size() > 0) {
             for (int i = 1; i < this.pointList.size(); i++) {
                 FHRPoint fHRPoint = this.pointList.get(i);
-                int i2 = i - 1;
-                FHRPoint fHRPoint2 = this.pointList.get(i2);
+                int preIndex = i - 1;
+                FHRPoint fHRPoint2 = this.pointList.get(preIndex);
                 if (fHRPoint == null) {
                     continue;
                 }
                 if (fHRPoint2 == null) {
                     continue;
                 }
-                if ((fHRPoint2.getX() - this.x3) + this.x4 > this.startX && (fHRPoint.getX() - this.x3) + this.x4 > this.startX && Math.abs(this.fhrDataList.get(i).getFhr() - this.fhrDataList.get(i2).getFhr()) < 30) {
-                    this.canvas.drawLine((fHRPoint2.getX() - this.x3) + this.x4, fHRPoint2.getY(), (fHRPoint.getX() - this.x3) + this.x4, fHRPoint.getY(), this.fhrLine);
+                if ((fHRPoint2.getX() - this.leftOffsetX) + this.rightOffsetX > this.startX && (fHRPoint.getX() - this.leftOffsetX) + this.rightOffsetX > this.startX && Math.abs(this.fhrDataList.get(i).getFhr() - this.fhrDataList.get(preIndex).getFhr()) < 30) {
+                    this.canvas.drawLine((fHRPoint2.getX() - this.leftOffsetX) + this.rightOffsetX, fHRPoint2.getY(), (fHRPoint.getX() - this.leftOffsetX) + this.rightOffsetX, fHRPoint.getY(), this.fhrLine);
                 }
-                if (fHRPoint.isQuickening() && (getFHRTo_XPx(31, i2) - this.x3) + this.x4 > this.startX && (getFHRTo_XPx(31, i2) - this.x3) + this.x4 + Util.dp2px(4) > this.startX) {
-                    this.canvas.drawRect(this.x4 + (getFHRTo_XPx(31, i2) - this.x3), this.stopY - Util.dp2px(8), Util.dp2px(4) + (getFHRTo_XPx(31, i2) - this.x3) + this.x4, this.stopY, this.quickeningPaint);
+                if (fHRPoint.isQuickening() && (getFHRTo_XPx(31, preIndex) - this.leftOffsetX) + this.rightOffsetX > this.startX && (getFHRTo_XPx(31, preIndex) - this.leftOffsetX) + this.rightOffsetX + Util.dp2px(4) > this.startX) {
+                    this.canvas.drawRect(this.rightOffsetX + (getFHRTo_XPx(31, preIndex) - this.leftOffsetX), this.stopY - Util.dp2px(8), Util.dp2px(4) + (getFHRTo_XPx(31, preIndex) - this.leftOffsetX) + this.rightOffsetX, this.stopY, this.quickeningPaint);
                 }
-                if (fHRPoint.getBreakType() == 1 && (getFHRTo_XPx(31, i2) - this.x3) + this.x4 > this.startX && (getFHRTo_XPx(31, i2) - this.x3) + this.x4 + Util.dp2px(4) > this.startX) {
-                    this.canvas.drawLine((getFHRTo_XPx(31, i2) - this.x3) + this.x4, this.startY + Util.dp2px(13), (getFHRTo_XPx(31, i2) - this.x3) + this.x4, this.stopY, this.startPaint);
-                    this.canvas.drawText(START_FLAG_TEXT, (getFHRTo_XPx(31, i2) - this.x3) + this.x4, this.startY + Util.dp2px(11), this.startPaint);
+                if (fHRPoint.getBreakType() == 1 && (getFHRTo_XPx(31, preIndex) - this.leftOffsetX) + this.rightOffsetX > this.startX && (getFHRTo_XPx(31, preIndex) - this.leftOffsetX) + this.rightOffsetX + Util.dp2px(4) > this.startX) {
+                    this.canvas.drawLine((getFHRTo_XPx(31, preIndex) - this.leftOffsetX) + this.rightOffsetX, this.startY + Util.dp2px(13), (getFHRTo_XPx(31, preIndex) - this.leftOffsetX) + this.rightOffsetX, this.stopY, this.startPaint);
+                    this.canvas.drawText(START_FLAG_TEXT, (getFHRTo_XPx(31, preIndex) - this.leftOffsetX) + this.rightOffsetX, this.startY + Util.dp2px(11), this.startPaint);
                 }
             }
         }
@@ -388,94 +385,84 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
             return false;
         }
         switch (motionEvent.getAction()) {
-            case 0:
-                this.x1 = (motionEvent.getX() + this.x3) - this.x4;
-                if (this.onMonitorTouchListener == null) {
-                    return true;
+            case MotionEvent.ACTION_DOWN:
+                this.downX = (motionEvent.getX() + this.leftOffsetX) - this.rightOffsetX;
+                if (this.onMonitorTouchListener != null) {
+                    this.onMonitorTouchListener.isTouchDown();
                 }
-                this.onMonitorTouchListener.isTouchDown();
-                return true;
-            case 1:
+                break;
+            case MotionEvent.ACTION_UP:
                 this.touchUpTime = System.currentTimeMillis();
-                if (this.x3 - this.x4 < 0.0f) {
+                if (this.leftOffsetX - this.rightOffsetX < 0.0f) {
                     initial();
                 }
-                if (this.onMonitorTouchListener == null) {
-                    return true;
+                if (this.onMonitorTouchListener != null) {
+                    this.onMonitorTouchListener.isTouchUp();
                 }
-                this.onMonitorTouchListener.isTouchUp();
-                return true;
-            case 2:
-                this.x2 = motionEvent.getX();
-                if (this.x1 > this.x2) {
-                    if (this.pointList.size() <= 0 || ((double) (this.x1 - this.x2)) >= (((double) this.pointList.size()) * this.per_cm_of_px) / 60.0d || ((double) this.x1) >= (((((double) this.pointList.size()) * this.per_cm_of_px) / 60.0d) + ((double) getWidth())) - ((double) this.startX)) {
-                        return true;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                this.moveX = motionEvent.getX();
+                if (this.downX > this.moveX) {
+                    if (this.pointList.size() <= 0 || ((double) (this.downX - this.moveX)) >= (((double) this.pointList.size()) * this.per_cm_of_px) / 60.0d || ((double) this.downX) >= (((((double) this.pointList.size()) * this.per_cm_of_px) / 60.0d) + ((double) getWidth())) - ((double) this.startX)) {
+
+                    } else {
+                        this.leftOffsetX = this.downX - this.moveX;
                     }
-                    this.x3 = this.x1 - this.x2;
-                    return true;
-                } else if (this.x3 - this.x4 <= 0.0f) {
-                    return true;
-                } else {
-                    this.x4 = this.x2 - this.x1;
-                    return true;
+                }  else {
+                    if (this.leftOffsetX - this.rightOffsetX <= 0.0f) {
+
+                    }else {
+                        this.rightOffsetX = this.moveX - this.downX;
+                    }
                 }
-            default:
-                return true;
+                break;
         }
+        return true;
     }
 
     public void initial() {
         this.pause = false;
-        this.x4 = 0.0f;
-        this.x3 = 0.0f;
-        this.x2 = 0.0f;
-        this.x1 = 0.0f;
+        this.rightOffsetX = 0.0f;
+        this.leftOffsetX = 0.0f;
+        this.moveX = 0.0f;
+        this.downX = 0.0f;
     }
 
-    public void setQuickening(boolean z) {
-        this.isQuickening = z;
+    public void setQuickening(boolean isQuickening) {
+        this.isQuickening = isQuickening;
     }
 
-    public void setBreakType(int i) {
+    public void setBreakType(int type) {
         if (this.pointList.size() > 0) {
-//            FHRData fHRData = new FHRData(-2, false);
-//            for (int i2 = 0; i2 < 60; i2++) {
-//                this.fhrDataList.add(this.fhrDataList.size() - 1, fHRData);
-//                this.pointList.add(getFHRIndex(), new FHRPoint(getFHRTo_XPx(fHRData.getFhr(), getFHRIndex()), getFHRTo_YPx(fHRData.getFhr()), fHRData.isQuickening()));
-//            }
-            this.pointList.get(this.pointList.size() - 1).setBreakType(i);
+            this.pointList.get(this.pointList.size() - 1).setBreakType(type);
             moveToNow();
         }
     }
 
-    public void setHistoryMode(boolean z) {
-        this.isHistoryMode = z;
+    public void setHistoryMode(boolean isHistoryMode) {
+        this.isHistoryMode = isHistoryMode;
     }
 
-    public void setConnect(boolean z) {
-        this.isConnect = z;
+    public void setConnect(boolean isConnect) {
+        this.isConnect = isConnect;
     }
 
-    public void addFHR(int i) {
-        this.fhrBuff.addFirst(Integer.valueOf(i));
+    public void addFHR(int fhr) {
+        this.fhrBuff.addFirst(Integer.valueOf(fhr));
     }
 
-    /* access modifiers changed from: private */
-    /* access modifiers changed from: public */
-    private float getFHRTo_YPx(int i) {
-        return (((float) getHeight()) - this.min_scale_height) - ((((float) (i - this.minFHRScale)) * this.scale_y_px) / 10.0f);
+    private float getFHRTo_YPx(int fhr) {
+        return (((float) getHeight()) - this.min_scale_height) - ((((float) (fhr - this.minFHRScale)) * this.scale_y_px) / 10.0f);
     }
 
-    /* access modifiers changed from: private */
-    /* access modifiers changed from: public */
-    private float getFHRTo_XPx(int i, int i2) {
-        if (i <= 30) {
+    private float getFHRTo_XPx(int fhr, int fhrIndex) {
+        if (fhr <= 30) {
             return 0.0f;
         }
         if (this.isHistory) {
-            return (float) (((double) this.startX) + (this.per_cm_of_px * 2.0d) + ((((double) i2) * this.per_cm_of_px) / 60.0d));
+            return (float) (((double) this.startX) + (this.per_cm_of_px * 2.0d) + ((((double) fhrIndex) * this.per_cm_of_px) / 60.0d));
         }
-        return (float) (((double) this.startX) + ((((double) i2) * this.per_cm_of_px) / 60.0d));
+        return (float) (((double) this.startX) + ((((double) fhrIndex) * this.per_cm_of_px) / 60.0d));
     }
 
     private class FHRThread extends Thread {
@@ -508,18 +495,18 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
                         FHRMonitorView.this.fhrBuff.addFirst(-1);
                         if (FHRMonitorView.this.touchUpTime <= 0) {
                             if (FHRMonitorView.this.getFHRIndex() == 360) {
-                                FHRMonitorView.this.x3 = (float) (((double) FHRMonitorView.this.x3) + (FHRMonitorView.this.per_cm_of_px * 4.0d));
+                                FHRMonitorView.this.leftOffsetX = (float) (((double) FHRMonitorView.this.leftOffsetX) + (FHRMonitorView.this.per_cm_of_px * 4.0d));
                             }
                             if (FHRMonitorView.this.getFHRIndex() > 360 && (FHRMonitorView.this.getFHRIndex() + 360) % 240 == 0) {
-                                FHRMonitorView.this.x3 = (float) (((double) FHRMonitorView.this.x3) + (FHRMonitorView.this.per_cm_of_px * 4.0d));
+                                FHRMonitorView.this.leftOffsetX = (float) (((double) FHRMonitorView.this.leftOffsetX) + (FHRMonitorView.this.per_cm_of_px * 4.0d));
                             }
-                        } else if (System.currentTimeMillis() - FHRMonitorView.this.touchUpTime > 3000) {
+                        } else if (System.currentTimeMillis() - FHRMonitorView.this.touchUpTime > AUTO_MOVE_TIME) {
                             FHRMonitorView.this.moveToNow();
                             FHRMonitorView.this.touchUpTime = 0;
                         }
                     }
                     if (FHRMonitorView.this.isHistoryMode) {
-                        FHRMonitorView.this.x3 += (float) (FHRMonitorView.this.per_cm_of_px / 60.0d);
+                        FHRMonitorView.this.leftOffsetX += (float) (FHRMonitorView.this.per_cm_of_px / 60.0d);
                     }
                     long currentTimeMillis2 = System.currentTimeMillis() - currentTimeMillis;
                     if (currentTimeMillis2 < DATA_TIME) {
@@ -536,13 +523,12 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         initial();
         if (getFHRIndex() > 360) {
             int fHRIndex = ((getFHRIndex() + 360) / 240) - 2;
-            Log.d(TAG, "run: " + fHRIndex);
-            this.x3 = (float) (((double) this.x3) + (this.per_cm_of_px * 4.0d * ((double) fHRIndex)));
+            this.leftOffsetX = (float) (((double) this.leftOffsetX) + (this.per_cm_of_px * 4.0d * ((double) fHRIndex)));
         }
     }
 
-    public void setCanTouch(boolean z) {
-        this.canTouch = z;
+    public void setCanTouch(boolean canTouch) {
+        this.canTouch = canTouch;
     }
 
     public void startHistoryMode() {
@@ -559,14 +545,14 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
         final FHRMonitorView fhrMonitorView;
 
         public static class FHRMonitorView$HistoryThread$1 implements Runnable {
-            final /* synthetic */ HistoryThread historyThread;
-            final /* synthetic */ int val$fhr;
-            final /* synthetic */ int val$fhr_index;
+            final HistoryThread historyThread;
+            final int val$fhr;
+            final int val$fhr_index;
 
-            FHRMonitorView$HistoryThread$1(HistoryThread historyThread, int i, int i2) {
+            FHRMonitorView$HistoryThread$1(HistoryThread historyThread, int fhr_index, int fhr) {
                 this.historyThread = historyThread;
-                this.val$fhr_index = i;
-                this.val$fhr = i2;
+                this.val$fhr_index = fhr_index;
+                this.val$fhr = fhr;
             }
 
             public void run() {
@@ -585,7 +571,7 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
                 while (fhrMonitorView.isHistory) {
                     sleep(50);
                     if (!fhrMonitorView.pause) {
-                        if (fhrMonitorView.fhrListener != null && (round = (int) Math.round(((double) (fhrMonitorView.x3 - fhrMonitorView.x4)) / (fhrMonitorView.per_cm_of_px / 60.0d))) > 0 && round <= fhrMonitorView.fhrDataList.size()) {
+                        if (fhrMonitorView.fhrListener != null && (round = (int) Math.round(((double) (fhrMonitorView.leftOffsetX - fhrMonitorView.rightOffsetX)) / (fhrMonitorView.per_cm_of_px / 60.0d))) > 0 && round <= fhrMonitorView.fhrDataList.size()) {
                             this.fhrMonitorView.post(new FHRMonitorView$HistoryThread$1(this, round, ((FHRData) fhrMonitorView.fhrDataList.get(round - 1)).getFhr()));
                         }
                     }
@@ -593,14 +579,13 @@ public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callbac
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            Log.e("HistoryThread", new Object[0].toString());
         }
 
     }
 
-    public void setIndex(int i) {
-        this.x4 = 0.0f;
-        this.x3 = (float) (((double) i) * (this.per_cm_of_px / 60.0d));
+    public void setIndex(int index) {
+        this.rightOffsetX = 0.0f;
+        this.leftOffsetX = (float) (((double) index) * (this.per_cm_of_px / 60.0d));
         this.pause = false;
     }
 }

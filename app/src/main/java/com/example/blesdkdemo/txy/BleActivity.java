@@ -89,14 +89,14 @@ public class BleActivity extends AppCompatActivity {
 
     private void requestPermission() {
         String[] strArr = {Permission.ACCESS_FINE_LOCATION, Permission.RECORD_AUDIO};
-        boolean z = false;
+        boolean needRequestPermission = false;
         for (int j = 0; j < strArr.length; j++) {
             if (ContextCompat.checkSelfPermission(this, strArr[j]) != 0) {
-                z = true;
+                needRequestPermission = true;
                 break;
             }
         }
-        if (z) {
+        if (needRequestPermission) {
             ActivityCompat.requestPermissions(this, strArr, PERMISSION_REQUEST_CODE);
         }
     }
