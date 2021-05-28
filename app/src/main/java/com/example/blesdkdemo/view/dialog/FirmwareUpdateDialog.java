@@ -158,7 +158,7 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
                                 updateGui();
                                 break;
                             case BleCommand.ResultCode.RESULT_OTA_PROGRESS:
-                                progressNum = Integer.valueOf(value);
+                                progressNum = Float.valueOf(value).intValue();
                                 displayStats();
                                 break;
                             case BleCommand.ResultCode.RESULT_OTA_END:
@@ -298,7 +298,7 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
         initBleSdk();
         context.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         LogUtils.i("获取设备当前固件版本号 = " + hardwareInfo.getHardwareVersion() + ", 开始获取网络上对应固件最新的版本号!");
-        if (hardwareInfo.getHardType() == HardwareInfo.HARD_TYPE_THERMOMETER || versionData.isMockData()) {
+        if (hardwareInfo.getHardType() == HardwareInfo.HARD_TYPE_THERMOMETER || hardwareInfo.getHardType() == HardwareInfo.HARD_TYPE_TXY || versionData.isMockData()) {
             refreshBleSate();
         } else {
             LogUtils.i("检查固件升级失败:不支持");
