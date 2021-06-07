@@ -217,8 +217,8 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
     @Override
     public void getFHR(int fhrIndex, int fhrValue) {
         if (isRecording && fhrValue == -1) {
-            disConnect();
-            Log.e(TAG, "ble_disConnect: ");
+            LogUtils.d("not receive fhr");
+            scPeripheralManager.disconnectPeripheral(macAddress);
         }
         if (fhrValue >= 60) {
             TextView textView = this.tv_FHR;
@@ -242,11 +242,6 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
 
     private void initAudio() {
         this.mSoundCard = new SoundCard(SoundCard.SAMPLING, SoundCard.ORIGINAL_SAMPLING);
-    }
-
-
-    private void disConnect() {
-        Log.e(TAG, "diConnect.....");
     }
 
     private void setListeners() {

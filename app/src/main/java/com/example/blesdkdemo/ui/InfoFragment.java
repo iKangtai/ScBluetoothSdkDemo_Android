@@ -374,11 +374,13 @@ public class InfoFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     if (!TextUtils.isEmpty(scPeripheral.getVersion())) {
-                        scPeripheralManager.checkFirmwareVersion(scPeripheral, new CheckFirmwareVersionListener() {
+                        boolean mockData = false;
+                        scPeripheralManager.checkFirmwareVersion(scPeripheral,mockData, new CheckFirmwareVersionListener() {
                             @Override
-                            public void checkSuccess(CheckFirmwareVersionResp.Data data) {
+                            public void checkSuccess(final CheckFirmwareVersionResp.Data data) {
                                 if (Double.parseDouble(data.getVersion()) > Double.parseDouble(scPeripheral.getVersion())) {
                                     otaFileUtil = new OtaFileUtil(getContext(), data.getVersion(), data.getFileUrl());
+                                    otaFileUtil.handleFirmwareImgMsg();
                                 } else {
                                     showErrorMessage(getString(R.string.already_latest_ver));
                                 }

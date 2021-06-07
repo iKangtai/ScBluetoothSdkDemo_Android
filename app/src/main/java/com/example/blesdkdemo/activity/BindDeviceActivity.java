@@ -202,12 +202,12 @@ public class BindDeviceActivity extends AppCompatActivity {
      * Check whether the firmware version needs to be upgraded
      * mockData=true ,Mock Check whether the firmware version needs to be upgraded
      *
-     * @see ScPeripheralManager.getInstance().checkFirmwareVersion(ScPeripheral scPeripheral, boolean isMockData, CheckFirmwareVersionListener checkFirmwareVersionListener)
+     * @see ScPeripheralManager.getInstance().checkFirmwareVersion( ScPeripheral scPeripheral, boolean isMockData, CheckFirmwareVersionListener checkFirmwareVersionListener)
      */
     public void checkFirmwareVersion(ScPeripheral scPeripheral) {
         Log.i(TAG, "check firmware version");
-        final boolean mockData = false;
-        ScPeripheralManager.getInstance().checkFirmwareVersion(scPeripheral, new CheckFirmwareVersionListener() {
+        boolean mockData = false;
+        ScPeripheralManager.getInstance().checkFirmwareVersion(scPeripheral,mockData, new CheckFirmwareVersionListener() {
             @Override
             public void checkSuccess(final CheckFirmwareVersionResp.Data data) {
                 if (Double.parseDouble(data.getVersion()) > Double.parseDouble(hardwareInfo.getHardwareVersion())) {
