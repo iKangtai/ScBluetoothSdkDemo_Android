@@ -35,6 +35,7 @@ import com.ikangtai.bluetoothsdk.util.PcmToWavUtil;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -310,6 +311,7 @@ public class BaseMonitorFragment extends BaseFragment {
                 final int addHistory = pcmToWav ? BaseMonitorFragment.this.historyDao.addHistory(historyBean) : 0;
 
                 final TxyRecordInfo recordInfo = new TxyRecordInfo();
+                recordInfo.setRecordId(UUID.randomUUID().toString());
                 recordInfo.setAppId(Constant.appId);
                 recordInfo.setAppSecret(Constant.appSecret);
                 recordInfo.setUnionId(Constant.unionId);
