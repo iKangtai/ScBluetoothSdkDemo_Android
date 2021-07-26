@@ -22,7 +22,7 @@
 1.第一种方式
 在项目App对应的build.gradle配置脚本的“dependencies”部分中添加统计信息SDK库依赖关系：
 ```java
-    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.2.4.3'
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.2.5'
 ```
 2.第二种方法，将SDK aar文件复制到项目的app/libs/目录，然后配置gradle
 ```java
@@ -35,10 +35,10 @@
         }
 
         dependencies {
-            implementation(name: 'scbluetoothlib-release-v1.2.4.3', ext: 'aar')
+            implementation(name: 'scbluetoothlib-release-v1.2.5', ext: 'aar')
         }
 ```
-3.第三种方式，将Demo的ScBluetoothLib模块配置复制到项目中，然后添加实现项目（':ScBluetoothLib'）建立依赖关系
+3.第三种方式，将Demo的ScBluetoothLib模块配置复制到项目中，然后添加implementation project(':ScBluetoothLib')建立依赖关系
 
 ### 请求权限
 
@@ -72,7 +72,7 @@ SDK要求APP授予以下权限：
 
 在使用SDK之前，您需要在主机应用程序UI线程中调用init函数，并且相关的回调函数也将在UI线程中：
 ```java
-    ScPeripheralManager.getInstance().init(getContext());
+    ScPeripheralManager.getInstance().init(getContext(),Constant.appId, Constant.appSecret, Constant.unionId);
 ```
 ### 扫描附近的蓝牙设备
 
@@ -281,7 +281,7 @@ SDK支持的命令列表：
     LogUtils.LOG_SWITCH=true;
     Config config = new Config.Builder().logWriter(logWriter).build();
     //Config config = new Config.Builder().logFilePath(logFilePath).build();
-    scPeripheralManager.init(getContext(), config);
+    scPeripheralManager.init(getContext(), Constant.appId, Constant.appSecret, Constant.unionId,config);
 ```
 
 ### 错误码说明

@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.blesdkdemo.BleApplication;
+import com.example.blesdkdemo.Constant;
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.activity.BindDeviceActivity;
 import com.example.blesdkdemo.activity.InfoActivity;
@@ -82,7 +83,7 @@ public class HomeFragment extends Fragment {
         Config config = new Config.Builder().logWriter(logWriter).build();
         //Config config = new Config.Builder().logFilePath(logFilePath).build();
         //sdk init
-        scPeripheralManager.init(getContext(), config);
+        scPeripheralManager.init(getContext(), Constant.appId, Constant.appSecret, Constant.unionId, config);
         //Scan nearby Bluetooth devices
         fragmentHomeBinding.searchButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -21,7 +21,7 @@ English | [中文文档](README_zh.md)
 1.The first way
 Add the statistics SDK library dependency in the dependencies section of the project App corresponding build.gradle configuration script:
 ```java
-    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.2.4.3'
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.2.5'
 ```
 2.The second way,to copy the SDK aar file to the app/libs/ directory of the project, and then configure gradle
 ```java
@@ -34,7 +34,7 @@ Add the statistics SDK library dependency in the dependencies section of the pro
         }
 
         dependencies {
-            implementation(name: 'scbluetoothlib-release-v1.2.4.3', ext: 'aar')
+            implementation(name: 'scbluetoothlib-release-v1.2.5', ext: 'aar')
         }
 ```
 3.The third way,to copy the ScBluetoothLib module configuration of Demo to the project, and then add the implementation project (':ScBluetoothLib') to establish the dependency
@@ -71,7 +71,7 @@ An example of the AndroidManifest.xml manifest file is given below:
 
 Before using the SDK, you need to call the init function in the host application UI thread, and the related callback functions will also be in the UI thread:
 ```java
-    ScPeripheralManager.getInstance().init(getContext());
+    ScPeripheralManager.getInstance().init(getContext(),Constant.appId, Constant.appSecret, Constant.unionId);
 ```
 ### Scan for nearby Bluetooth devices
 
@@ -280,7 +280,7 @@ You can also filter the "sc-ble-log" Tag through Locat to display SDK specific l
     LogUtils.LOG_SWITCH=true;
     Config config = new Config.Builder().logWriter(logWriter).build();
     //Config config = new Config.Builder().logFilePath(logFilePath).build();
-    scPeripheralManager.init(getContext(), config);
+    scPeripheralManager.init(getContext(),Constant.appId, Constant.appSecret, Constant.unionId, config);
 ```
 
 ### Error code description

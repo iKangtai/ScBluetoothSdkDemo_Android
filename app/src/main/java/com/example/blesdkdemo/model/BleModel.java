@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 
 import com.example.blesdkdemo.AppInfo;
+import com.example.blesdkdemo.Constant;
 import com.example.blesdkdemo.Keys;
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.contract.BleContract;
@@ -144,7 +145,7 @@ public class BleModel {
          */
         Config config = new Config.Builder().logWriter(logWriter).build();
         //sdk init
-        scPeripheralManager.init(context, config);
+        scPeripheralManager.init(context, Constant.appId, Constant.appSecret, Constant.unionId, config);
         receiveDataListenerAdapter = new ReceiveDataListenerAdapter() {
             private long endConnBLETime;
             private long distanceTime = 5 * 60 * 1000;

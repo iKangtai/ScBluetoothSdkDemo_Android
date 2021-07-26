@@ -312,9 +312,6 @@ public class BaseMonitorFragment extends BaseFragment {
 
                 final TxyRecordInfo recordInfo = new TxyRecordInfo();
                 recordInfo.setRecordId(UUID.randomUUID().toString());
-                recordInfo.setAppId(Constant.appId);
-                recordInfo.setAppSecret(Constant.appSecret);
-                recordInfo.setUnionId(Constant.unionId);
                 recordInfo.setSdkVersion(AppInfo.getInstance().getVersion());
                 recordInfo.setPhoneInfo(AppInfo.getPhoneProducer() + " " + AppInfo.getPhoneModel());
                 recordInfo.setAudioFile(new File(audioFilePath));
