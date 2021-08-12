@@ -13,10 +13,10 @@ English | [中文文档](README_zh.md)
 | Function item                    |  Function description 		|
 | ------------------------- | ------------  	|
 | Scan for nearby Bluetooth devices          | Scan for Bluetooth devices near the phone and refresh the device list every second |
-| Connect to Shecare thermometer to synchronize data&nbsp;&nbsp;&nbsp;&nbsp;| Connect the thermometer to synchronize data, set the thermometer temperature unit and time, and get the firmware version |
-| Connect Shecare forehead thermometer to synchronize data&nbsp;&nbsp;| Connect the forehead thermometer to synchronize data and get the firmware version number |
-| Connect to Shecare fetal heart rate monitor to synchronize data&nbsp;&nbsp;| Connect the forehead thermometer to synchronize data and get the firmware version number |
-| Connect Shecare body temperature stickers to synchronize data&nbsp;&nbsp;| Connect the forehead thermometer to synchronize data and get the firmware version number |
+| Connect to thermometer to synchronize data&nbsp;&nbsp;&nbsp;&nbsp;| Connect the thermometer to synchronize data, set the thermometer temperature unit and time, and get the firmware version |
+| Connect forehead thermometer to synchronize data&nbsp;&nbsp;| Connect the forehead thermometer to synchronize data and get the firmware version number |
+| Connect to fetal heart rate monitor to synchronize data&nbsp;&nbsp;| Connect the forehead thermometer to synchronize data and get the firmware version number |
+| Connect body temperature stickers to synchronize data&nbsp;&nbsp;| Connect the forehead thermometer to synchronize data and get the firmware version number |
 ### Integrated SDK
 1.The first way
 Add the statistics SDK library dependency in the dependencies section of the project App corresponding build.gradle configuration script:
