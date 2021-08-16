@@ -80,7 +80,7 @@ public class HomeFragment extends Fragment {
          * 1. {@link Config.Builder#logWriter(Writer)}
          * 2. {@link Config.Builder#logFilePath(String)}
          */
-        Config config = new Config.Builder().logWriter(logWriter).build();
+        Config config = new Config.Builder().logWriter(logWriter).scanMode(Config.Builder.SCAN_MODE_LOW_LATENCY).build();
         //Config config = new Config.Builder().logFilePath(logFilePath).build();
         //sdk init
         scPeripheralManager.init(getContext(), Constant.appId, Constant.appSecret, Constant.unionId, config);
