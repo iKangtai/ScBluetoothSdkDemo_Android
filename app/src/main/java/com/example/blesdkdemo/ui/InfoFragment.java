@@ -341,7 +341,7 @@ public class InfoFragment extends Fragment {
                                     if (!TextUtils.isEmpty(value)) {
                                         BleCommandData bleCommandData = new BleCommandData();
                                         bleCommandData.setParam1(Integer.valueOf(value));
-                                        scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SET_THERMOMETER_MEASURE_TIME1, bleCommandData);
+                                        scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SET_THERMOMETER_MEASURE_TIME2, bleCommandData);
                                     }
                                 }
                             }).setNegativeButton(getString(R.string.cancel), null).show();
@@ -363,7 +363,7 @@ public class InfoFragment extends Fragment {
                                     if (!TextUtils.isEmpty(value)) {
                                         BleCommandData bleCommandData = new BleCommandData();
                                         bleCommandData.setParam1(Integer.valueOf(value));
-                                        scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SET_THERMOMETER_MEASURE_TIME2, bleCommandData);
+                                        scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SET_THERMOMETER_MEASURE_TIME1, bleCommandData);
                                     }
                                 }
                             }).setNegativeButton(getString(R.string.cancel), null).show();
