@@ -38,7 +38,7 @@ dependencies {
 
     implementation 'com.hjq:xxpermissions:3.6'
     //implementation project(':ScBluetoothLib')
-    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.2.6'
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.2.7'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
     implementation 'com.j256.ormlite:ormlite-core:5.1'
     implementation 'com.google.code.gson:gson:2.8.4'
