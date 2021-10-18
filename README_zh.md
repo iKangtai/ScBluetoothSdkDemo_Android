@@ -22,7 +22,7 @@
 1.第一种方式
 在项目App对应的build.gradle配置脚本的“dependencies”部分中添加统计信息SDK库依赖关系：
 ```java
-    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.2.7'
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.2.8'
 ```
 2.第二种方法，将SDK aar文件复制到项目的app/libs/目录，然后配置gradle
 ```java
