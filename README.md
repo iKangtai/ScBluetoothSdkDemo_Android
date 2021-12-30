@@ -21,7 +21,7 @@ English | [中文文档](README_zh.md)
 1.The first way
 Add the statistics SDK library dependency in the dependencies section of the project App corresponding build.gradle configuration script:
 ```java
-    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.2.10-alpha3'
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.2.10-alpha4'
 ```
 2.The second way,to copy the SDK aar file to the app/libs/ directory of the project, and then configure gradle
 ```java
@@ -34,7 +34,7 @@ Add the statistics SDK library dependency in the dependencies section of the pro
         }
 
         dependencies {
-            implementation(name: 'scbluetoothlib-release-v1.2.10-alpha3', ext: 'aar')
+            implementation(name: 'scbluetoothlib-release-v1.2.10-alpha4', ext: 'aar')
         }
 ```
 3.The third way,to copy the ScBluetoothLib module configuration of Demo to the project, and then add the implementation project (':ScBluetoothLib') to establish the dependency
