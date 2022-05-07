@@ -1,2 +1,2 @@
 configurations.maybeCreate("default")
-artifacts.add("default", file('ScBluetoothLib-release-v1.2.6.aar'))
+artifacts.add("default", file('ScBluetoothLib-release-v1.2.10-alpha4.aar'))
