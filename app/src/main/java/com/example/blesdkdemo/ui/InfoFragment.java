@@ -636,7 +636,7 @@ public class InfoFragment extends Fragment {
                     LogUtils.i("OADMainActivity OTA, filePath = " + filePath);
 
                     BleCommandData bleCommandData = new BleCommandData();
-                    bleCommandData.setOtaTime(180);
+                    bleCommandData.setOtaTime(3);
                     bleCommandData.setOtaImgFilepath(filePath);
                     scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.THERMOMETER_OTA_UPGRADE, bleCommandData);
                 }

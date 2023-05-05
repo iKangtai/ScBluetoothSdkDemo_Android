@@ -533,7 +533,7 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
                         mockUpgrade();
                     } else {
                         BleCommandData bleCommandData = new BleCommandData();
-                        bleCommandData.setOtaTime(180);
+                        bleCommandData.setOtaTime(3);
                         bleCommandData.setOtaImgFilepath(filePath);
                         scPeripheralManager.sendPeripheralCommand(hardwareInfo.getHardMacId(), BleCommand.THERMOMETER_OTA_UPGRADE, bleCommandData);
                     }
