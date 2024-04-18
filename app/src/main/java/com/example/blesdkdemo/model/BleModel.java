@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 
+import androidx.fragment.app.Fragment;
+
 import com.example.blesdkdemo.AppInfo;
 import com.example.blesdkdemo.Constant;
 import com.example.blesdkdemo.Keys;
@@ -39,8 +41,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import androidx.fragment.app.Fragment;
 
 
 /**
@@ -230,7 +230,7 @@ public class BleModel {
                     endConnBLETime = System.currentTimeMillis();
                     LogUtils.i("connected!");
                     refreshBleState(macAddress, true);
-                    if (connectScPeripheral != null && connectScPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY) {
+                    if (connectScPeripheral != null && (connectScPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY || connectScPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY_168)) {
                         if (blePresenter != null) {
                             blePresenter.updateBleDeviceInfo(connectScPeripheral);
                         }

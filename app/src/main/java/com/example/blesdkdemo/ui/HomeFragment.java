@@ -151,7 +151,7 @@ public class HomeFragment extends Fragment {
                 String macAddress = scPeripheral.getMacAddress();
                 BleApplication.getInstance().appPreferences.saveLastDeviceAddress(macAddress);
                 Intent intent;
-                if (scPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY) {
+                if (scPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY || scPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY_168) {
                     intent = new Intent(getContext(), BleActivity.class);
                 } else {
                     intent = new Intent(getContext(), InfoActivity.class);

@@ -22,7 +22,7 @@
 1.第一种方式
 在项目App对应的build.gradle配置脚本的“dependencies”部分中添加统计信息SDK库依赖关系：
 ```java
-    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.4.4.2'
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.4.8'
 ```
 2.第二种方法，将SDK aar文件复制到项目的app/libs/目录，然后配置gradle
 ```java
@@ -35,7 +35,7 @@
         }
 
         dependencies {
-            implementation(name: 'scbluetoothlib-release-v1.4.4.2', ext: 'aar')
+            implementation(name: 'scbluetoothlib-release-v1.4.8', ext: 'aar')
         }
 ```
 3.第三种方式，将Demo的ScBluetoothLib模块配置复制到项目中，然后添加implementation project(':ScBluetoothLib')建立依赖关系
@@ -265,6 +265,9 @@ SDK支持的命令列表：
 ### 混淆配置
 如果您的应用程序使用代码混淆，请添加以下配置，以避免由于混淆不正确而导致SDK不可用。
 ```java
+    -keepclasseswithmembernames class * {  # 保持 native 方法不被混淆
+        native <methods>;
+    }
     -dontwarn  com.ikangtai.bluetoothsdk.**
     -keep class com.ikangtai.bluetoothsdk.** {*;}
 ```
