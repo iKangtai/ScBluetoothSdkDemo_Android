@@ -88,7 +88,23 @@ SDK要求APP授予以下权限：
      	  * @param deviceList
      	  */
         public void onScannerResult(List<ScPeripheral> deviceList) {
-
+            //deviceType 见BleTools
+            //智能体温计
+            public static final int TYPE_SMART_THERMOMETER = 1;
+            //基础体温计
+            public static final int TYPE_BASE_THERMOMETER = 2;
+            //额温枪
+            public static final int TYPE_EWQ = 3;
+            //安康源三代
+            public static final int TYPE_AKY_3 = 4;
+            //安康源四代
+            public static final int TYPE_AKY_4 = 5;
+            //孕橙FD-120A胎心仪
+            public static final int TYPE_LJ_TXY = 6;
+            //飞康体温贴
+            public static final int TYPE_IFEVER_TEM_TICK = 7;
+            //孕橙FD-168胎心仪
+            public static final int TYPE_LJ_TXY_168 = 8;
         }
     });
 ```
