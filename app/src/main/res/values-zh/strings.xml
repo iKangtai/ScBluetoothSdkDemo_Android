@@ -48,7 +48,9 @@
     <string name="input_measure_time">请输入测温时长</string>
     <string name="input_preheat_time">请输入预热时长</string>
     <string name="get_measure_mode">获取测温模式</string>
-    <string name="set_measure_mode">设置测温模式</string>
+    <string name="set_measure_mode1">设置预测模式</string>
+    <string name="set_measure_mode2">设置口腔模式</string>
+    <string name="set_measure_mode3">设置腋下模式</string>
     <string name="get_unit">获取温度单位</string>
     <string name="get_power">获取电量</string>
     <string name="ota_upgrade">OTA升级</string>

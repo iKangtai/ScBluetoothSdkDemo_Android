@@ -1,15 +1,21 @@
 package com.example.blesdkdemo.util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.provider.Settings;
 import android.view.View;
 
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.view.dialog.BleAlertDialog;
-import com.hjq.permissions.OnPermission;
+import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 import com.ikangtai.bluetoothsdk.util.BleTools;
@@ -17,8 +23,6 @@ import com.ikangtai.bluetoothsdk.util.LogUtils;
 import com.ikangtai.bluetoothsdk.util.ToastUtils;
 
 import java.util.List;
-
-import androidx.fragment.app.Fragment;
 
 /**
  * Before the scan starts, you need to check the location service switch above 6.0, the location permission of the system above 6.0, and the Bluetooth switch
@@ -68,19 +72,25 @@ public class CheckBleFeaturesUtil {
         }
         //Check the location permissions required to scan nearby devices
         if (!BleTools.checkBlePermission(context)) {
+            String[] permissions;
+            if (BleTools.getTargetSdkVersionCode(context) >= Build.VERSION_CODES.S && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                permissions = new String[]{Permission.BLUETOOTH_CONNECT, Permission.BLUETOOTH_SCAN, Permission.BLUETOOTH_ADVERTISE};
+            } else {
+                permissions = new String[]{Permission.ACCESS_COARSE_LOCATION, Permission.ACCESS_FINE_LOCATION};
+            }
             XXPermissions.with(activity != null ? activity : fragment.getActivity())
-                    .permission(Permission.Group.LOCATION)
-                    .request(new OnPermission() {
+                    .permission(permissions)
+                    .request(new OnPermissionCallback() {
                         @Override
-                        public void hasPermission(List<String> granted, boolean isAll) {
-                            if (isAll) {
+                        public void onGranted(List<String> permissions, boolean all) {
+                            if (all) {
                                 //do something
                             }
                         }
 
                         @Override
-                        public void noPermission(List<String> denied, boolean quick) {
-                            if (quick) {
+                        public void onDenied(List<String> permissions, boolean never) {
+                            if (never) {
                                 new BleAlertDialog(context).builder().setTitle(context.getString(R.string.tips)).setMsg(context.getString(R.string.request_location_premisson)).setNegativeButton(context.getString(R.string.cancel), new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -89,7 +99,7 @@ public class CheckBleFeaturesUtil {
                                 }).setPositiveButton(context.getString(R.string.ok), new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        XXPermissions.gotoPermissionSettings(context);
+                                        XXPermissions.startPermissionActivity(context);
                                     }
                                 }).show();
 
@@ -111,6 +121,11 @@ public class CheckBleFeaturesUtil {
             }).setPositiveButton(context.getString(R.string.ok), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (BleTools.getTargetSdkVersionCode(context) >= Build.VERSION_CODES.S && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                    }
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     if (activity != null) {
                         activity.startActivityForResult(intent, REQUEST_BLE_SETTINGS_CODE);

@@ -21,6 +21,8 @@ import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatDialog;
+
 import com.example.blesdkdemo.AppInfo;
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.util.OadFileUtil;
@@ -42,8 +44,6 @@ import com.ikangtai.bluetoothsdk.util.LogUtils;
 
 import java.io.File;
 import java.util.List;
-
-import androidx.appcompat.app.AppCompatDialog;
 
 
 /**

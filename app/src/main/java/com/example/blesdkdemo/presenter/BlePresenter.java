@@ -2,14 +2,14 @@ package com.example.blesdkdemo.presenter;
 
 import android.app.Activity;
 
+import androidx.fragment.app.Fragment;
+
 import com.example.blesdkdemo.contract.BleContract;
 import com.example.blesdkdemo.info.TemperatureInfo;
 import com.example.blesdkdemo.model.BleModel;
 import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 
 import java.util.List;
-
-import androidx.fragment.app.Fragment;
 
 /**
  * desc

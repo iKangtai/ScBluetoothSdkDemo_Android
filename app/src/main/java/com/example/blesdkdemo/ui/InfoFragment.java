@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
@@ -22,11 +23,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.databinding.FragmentInfoBinding;
 import com.example.blesdkdemo.util.OadFileUtil;
 import com.example.blesdkdemo.util.OtaFileUtil;
-import com.hjq.permissions.OnPermission;
+import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 import com.ikangtai.bluetoothsdk.BleCommand;
@@ -45,11 +51,6 @@ import com.ikangtai.bluetoothsdk.util.ToastUtils;
 import java.io.File;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
 public class InfoFragment extends Fragment {
     private String macAddress;
     private ScPeripheralManager scPeripheralManager;
@@ -57,7 +58,7 @@ public class InfoFragment extends Fragment {
     public final static int REQUEST_BLE_SETTINGS_CODE = 1001;
     private FragmentInfoBinding fragmentInfoBinding;
     private InfoViewModel infoViewModel;
-    private Button btnSyncData, btnSyncTime, btnGetUnit, btnSyncUnitC, btnSyncUnitF, btnConnectState, btnDisconnect, btnGetTime, btnGetMeasureMode, btnSetMeasureMode, btnGetPower, btnGetMeasureTime, btnSetMeasuringTime, btnSetPreheatTime, btnOtaUpgrade, btnGetHistoryData, btnClearHistoryData, btnOadUpgrade;
+    private Button btnSyncData, btnSyncTime, btnGetUnit, btnSyncUnitC, btnSyncUnitF, btnConnectState, btnDisconnect, btnGetTime, btnGetMeasureMode, btnSetMeasureMode1, btnSetMeasureMode2, btnSetMeasureMode3, btnGetPower, btnGetMeasureTime, btnSetMeasuringTime, btnSetPreheatTime, btnOtaUpgrade, btnGetHistoryData, btnClearHistoryData, btnOadUpgrade;
     private ProgressDialog dialog;
     private ScPeripheral scPeripheral;
     private OadFileUtil oadFileUtil;
@@ -302,12 +303,30 @@ public class InfoFragment extends Fragment {
                     scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.GET_THERMOMETER_MODE);
                 }
             });
-        if (btnSetMeasureMode != null)
-            btnSetMeasureMode.setOnClickListener(new View.OnClickListener() {
+        if (btnSetMeasureMode1 != null)
+            btnSetMeasureMode1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     BleCommandData bleCommandData = new BleCommandData();
                     bleCommandData.setParam1(BleCommand.MeasureMode.PREDICTION);
+                    scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SET_THERMOMETER_MODE, bleCommandData);
+                }
+            });
+        if (btnSetMeasureMode2 != null)
+            btnSetMeasureMode2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    BleCommandData bleCommandData = new BleCommandData();
+                    bleCommandData.setParam1(BleCommand.MeasureMode.ORAL_CAVITY);
+                    scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SET_THERMOMETER_MODE, bleCommandData);
+                }
+            });
+        if (btnSetMeasureMode3 != null)
+            btnSetMeasureMode3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    BleCommandData bleCommandData = new BleCommandData();
+                    bleCommandData.setParam1(BleCommand.MeasureMode.ARMPIT);
                     scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SET_THERMOMETER_MODE, bleCommandData);
                 }
             });
@@ -375,7 +394,7 @@ public class InfoFragment extends Fragment {
                 public void onClick(View v) {
                     if (!TextUtils.isEmpty(scPeripheral.getVersion())) {
                         boolean mockData = false;
-                        scPeripheralManager.checkFirmwareVersion(scPeripheral,mockData, new CheckFirmwareVersionListener() {
+                        scPeripheralManager.checkFirmwareVersion(scPeripheral, mockData, new CheckFirmwareVersionListener() {
                             @Override
                             public void checkSuccess(final CheckFirmwareVersionResp.Data data) {
                                 if (Double.parseDouble(data.getVersion()) > Double.parseDouble(scPeripheral.getVersion())) {
@@ -496,7 +515,9 @@ public class InfoFragment extends Fragment {
         btnDisconnect = getView().findViewById(R.id.btn_disconnect);
         btnGetTime = getView().findViewById(R.id.btn_get_time);
         btnGetMeasureMode = getView().findViewById(R.id.btn_get_measure_mode);
-        btnSetMeasureMode = getView().findViewById(R.id.btn_set_measure_mode);
+        btnSetMeasureMode1 = getView().findViewById(R.id.btn_set_measure_mode1);
+        btnSetMeasureMode2 = getView().findViewById(R.id.btn_set_measure_mode2);
+        btnSetMeasureMode3 = getView().findViewById(R.id.btn_set_measure_mode3);
         btnGetPower = getView().findViewById(R.id.btn_get_power);
         btnGetMeasureTime = getView().findViewById(R.id.btn_get_measure_time);
         btnSetMeasuringTime = getView().findViewById(R.id.btn_set_measuring_time);
@@ -537,24 +558,30 @@ public class InfoFragment extends Fragment {
         }
         //Check Bluetooth location permission
         if (!BleTools.checkBlePermission(getContext())) {
+            String[] permissions;
+            if (BleTools.getTargetSdkVersionCode(getContext()) >= Build.VERSION_CODES.S && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                permissions = new String[]{Permission.BLUETOOTH_CONNECT, Permission.BLUETOOTH_SCAN, Permission.BLUETOOTH_ADVERTISE};
+            } else {
+                permissions = new String[]{Permission.ACCESS_COARSE_LOCATION, Permission.ACCESS_FINE_LOCATION};
+            }
             XXPermissions.with(getActivity())
-                    .permission(Permission.Group.LOCATION)
-                    .request(new OnPermission() {
+                    .permission(permissions)
+                    .request(new OnPermissionCallback() {
                         @Override
-                        public void hasPermission(List<String> granted, boolean isAll) {
-                            if (isAll) {
+                        public void onGranted(List<String> permissions, boolean all) {
+                            if (all) {
                                 //do something
                             }
                         }
 
                         @Override
-                        public void noPermission(List<String> denied, boolean quick) {
-                            if (quick) {
+                        public void onDenied(List<String> permissions, boolean never) {
+                            if (never) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext()).setTitle(R.string.tips)
                                         .setMessage(R.string.request_location_premisson).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                XXPermissions.gotoPermissionSettings(getContext());
+                                                XXPermissions.startPermissionActivity(getContext());
                                             }
                                         }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                             @Override

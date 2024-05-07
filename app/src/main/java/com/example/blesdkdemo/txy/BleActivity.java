@@ -9,13 +9,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.blesdkdemo.Constant;
-import com.example.blesdkdemo.R;
-import com.example.blesdkdemo.activity.ChatActivity;
-import com.example.blesdkdemo.util.ChatUrlUtil;
-import com.hjq.permissions.Permission;
-import com.ikangtai.bluetoothsdk.model.ScPeripheral;
-
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -23,6 +16,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import com.example.blesdkdemo.Constant;
+import com.example.blesdkdemo.R;
+import com.example.blesdkdemo.activity.ChatActivity;
+import com.example.blesdkdemo.util.ChatUrlUtil;
+import com.hjq.permissions.Permission;
+import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 
 /**
  * Fetal Preference

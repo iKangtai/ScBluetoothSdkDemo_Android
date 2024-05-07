@@ -4,11 +4,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.view.TopBar;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Binding result

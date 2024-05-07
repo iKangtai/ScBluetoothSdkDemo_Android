@@ -147,7 +147,7 @@ public class BleAlertDialog extends BaseShecareDialog {
     }
 
     public BleAlertDialog setPositiveButton(String text,
-                                            final View.OnClickListener listener) {
+                                                                                 final View.OnClickListener listener) {
         showPosBtn = true;
         if ("".equals(text)) {
             btn_pos.setText(context.getString(R.string.ok));
@@ -165,7 +165,7 @@ public class BleAlertDialog extends BaseShecareDialog {
     }
 
     public BleAlertDialog setPositiveButton(String text, int color,
-                                            final View.OnClickListener listener) {
+                                                                                 final View.OnClickListener listener) {
         showPosBtn = true;
         if ("".equals(text)) {
             btn_pos.setText(context.getString(R.string.ok));
@@ -184,7 +184,7 @@ public class BleAlertDialog extends BaseShecareDialog {
     }
 
     public BleAlertDialog setNegativeButton(String text,
-                                            final View.OnClickListener listener) {
+                                                                                 final View.OnClickListener listener) {
         showNegBtn = true;
         if ("".equals(text)) {
             btn_neg.setText(context.getString(R.string.cancel));
@@ -202,7 +202,7 @@ public class BleAlertDialog extends BaseShecareDialog {
     }
 
     public BleAlertDialog setNegativeButton(String text, int color,
-                                            final View.OnClickListener listener) {
+                                                                                 final View.OnClickListener listener) {
         showNegBtn = true;
         if ("".equals(text)) {
             btn_neg.setText(context.getString(R.string.cancel));

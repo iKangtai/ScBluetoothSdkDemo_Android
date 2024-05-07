@@ -10,6 +10,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import androidx.annotation.NonNull;
+
 import com.example.blesdkdemo.BleApplication;
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.util.Util;
@@ -21,8 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import androidx.annotation.NonNull;
 
 public class FHRMonitorView extends SurfaceView implements SurfaceHolder.Callback {
     public static final int AUTO_MOVE_TIME = 3000;

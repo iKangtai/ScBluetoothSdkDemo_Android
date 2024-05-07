@@ -9,6 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.example.blesdkdemo.BleApplication;
 import com.example.blesdkdemo.Constant;
 import com.example.blesdkdemo.R;
@@ -35,12 +41,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 /**
  * Scan for nearby Bluetooth devices
@@ -180,7 +180,7 @@ public class HomeFragment extends Fragment {
                     }
                 }
             }
-        }, 20000);
+        }, 200000);
     }
 
 

@@ -12,6 +12,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.txy.ui.OnFhrListener;
 import com.example.blesdkdemo.util.Util;
@@ -25,9 +28,6 @@ import com.ikangtai.bluetoothsdk.util.BleCode;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
 
 import java.util.List;
-
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 
 /**
  * Fetal Heart Monitoring
@@ -109,12 +109,16 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
                     int[] result = mSoundCard.handleData(data);
                     int frameValue = result[0];
                     int heartIconFlag = result[1];
+                    int signalIntensity = result[2];
                     if (frameValue != -1) {
                         mFHR = frameValue;
                         monitorView.addFHR(frameValue);
                     }
                     if (heartIconFlag == 1) {
                         MonitorBLEFragment.this.heartIconFlag = 1;
+                    }
+                    if (signalIntensity != -1) {
+                        Log.d("xyl", "signalIntensity:"+signalIntensity);
                     }
                 }
             }

@@ -17,15 +17,15 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
-import com.example.blesdkdemo.BuildConfig;
-import com.example.blesdkdemo.R;
-import com.example.blesdkdemo.view.TopBar;
-import com.ikangtai.bluetoothsdk.util.FileUtil;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.blesdkdemo.BuildConfig;
+import com.example.blesdkdemo.R;
+import com.example.blesdkdemo.view.TopBar;
+import com.ikangtai.bluetoothsdk.util.FileUtil;
 
 /**
  * desc

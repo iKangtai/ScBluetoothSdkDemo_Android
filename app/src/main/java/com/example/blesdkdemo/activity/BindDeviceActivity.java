@@ -6,6 +6,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.blesdkdemo.AppInfo;
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.contract.BleContract;
@@ -27,9 +30,6 @@ import com.ikangtai.bluetoothsdk.util.LogUtils;
 import com.ikangtai.bluetoothsdk.util.ToastUtils;
 
 import java.util.List;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * desc
@@ -202,7 +202,7 @@ public class BindDeviceActivity extends AppCompatActivity {
      * Check whether the firmware version needs to be upgraded
      * mockData=true ,Mock Check whether the firmware version needs to be upgraded
      *
-     * @see ScPeripheralManager.getInstance().checkFirmwareVersion( ScPeripheral scPeripheral, boolean isMockData, CheckFirmwareVersionListener checkFirmwareVersionListener)
+     * @see ScPeripheralManager.getInstance().checkFirmwareVersion(ScPeripheral scPeripheral, boolean isMockData, CheckFirmwareVersionListener checkFirmwareVersionListener)
      */
     public void checkFirmwareVersion(ScPeripheral scPeripheral) {
         Log.i(TAG, "check firmware version");

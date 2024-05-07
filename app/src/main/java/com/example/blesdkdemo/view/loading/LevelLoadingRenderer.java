@@ -13,10 +13,10 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
-import com.ikangtai.bluetoothsdk.util.PxDxUtil;
-
 import androidx.annotation.Size;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+
+import com.ikangtai.bluetoothsdk.util.PxDxUtil;
 
 
 public class LevelLoadingRenderer extends LoadingRenderer {

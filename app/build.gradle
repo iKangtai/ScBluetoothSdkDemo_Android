@@ -48,7 +48,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    implementation 'com.hjq:xxpermissions:3.6'
+    implementation 'com.github.getActivity:XXPermissions:18.2'
     //implementation project(':ScBluetoothLib')
     implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.4.8.1'
     implementation 'com.j256.ormlite:ormlite-android:5.1'

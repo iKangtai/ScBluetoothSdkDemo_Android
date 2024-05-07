@@ -58,16 +58,39 @@ SDK要求APP授予以下权限：
 
 下面给出了AndroidManifest.xml清单文件的示例：
 ```java
-<manifest ……>
-<uses-permission android:name="android.permission.BLUETOOTH" />
-<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+<uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+<uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+<uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-<application ……>
 ```
 
+注意在targetSdkVersion 31以下项目，需要替换SDK中权限配置
+```java
+<uses-permission
+android:name="android.permission.BLUETOOTH"
+tools:remove="android:maxSdkVersion" />
+<uses-permission
+android:name="android.permission.BLUETOOTH_ADMIN"
+tools:remove="android:maxSdkVersion" />
+<uses-permission
+android:name="android.permission.BLUETOOTH_SCAN"
+tools:node="remove" />
+<uses-permission
+android:name="android.permission.BLUETOOTH_ADVERTISE"
+tools:node="remove" />
+<uses-permission
+android:name="android.permission.BLUETOOTH_CONNECT"
+tools:node="remove" />
+```
 ### 初始化SDK
 
 在使用SDK之前，您需要在主机应用程序UI线程中调用init函数，并且相关的回调函数也将在UI线程中：

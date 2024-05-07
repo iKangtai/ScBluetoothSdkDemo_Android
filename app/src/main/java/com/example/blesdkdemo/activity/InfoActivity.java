@@ -2,11 +2,11 @@ package com.example.blesdkdemo.activity;
 
 import android.os.Bundle;
 
-import com.example.blesdkdemo.ui.InfoFragment;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
+
+import com.example.blesdkdemo.ui.InfoFragment;
 
 /**
  * Thermometer details
