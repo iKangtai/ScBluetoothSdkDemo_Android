@@ -81,6 +81,7 @@ public class HomeFragment extends Fragment {
          * 2. {@link Config.Builder#logFilePath(String)}
          */
         Config config = new Config.Builder().logWriter(logWriter).scanMode(Config.Builder.SCAN_MODE_LOW_LATENCY).build();
+        config.setDebug(true);
         //Config config = new Config.Builder().logFilePath(logFilePath).build();
         //sdk init
         scPeripheralManager.init(getContext(), Constant.appId, Constant.appSecret, Constant.unionId, config);
@@ -151,7 +152,7 @@ public class HomeFragment extends Fragment {
                 String macAddress = scPeripheral.getMacAddress();
                 BleApplication.getInstance().appPreferences.saveLastDeviceAddress(macAddress);
                 Intent intent;
-                if (scPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY || scPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY_168) {
+                if (scPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY || scPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY_168 || scPeripheral.getDeviceType() == BleTools.TYPE_TXY_P811) {
                     intent = new Intent(getContext(), BleActivity.class);
                 } else {
                     intent = new Intent(getContext(), InfoActivity.class);

@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.databinding.FragmentInfoBinding;
+import com.example.blesdkdemo.service.BleService;
 import com.example.blesdkdemo.util.OadFileUtil;
 import com.example.blesdkdemo.util.OtaFileUtil;
 import com.hjq.permissions.OnPermissionCallback;
@@ -49,6 +50,7 @@ import com.ikangtai.bluetoothsdk.util.LogUtils;
 import com.ikangtai.bluetoothsdk.util.ToastUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class InfoFragment extends Fragment {
@@ -58,20 +60,35 @@ public class InfoFragment extends Fragment {
     public final static int REQUEST_BLE_SETTINGS_CODE = 1001;
     private FragmentInfoBinding fragmentInfoBinding;
     private InfoViewModel infoViewModel;
-    private Button btnSyncData, btnSyncTime, btnGetUnit, btnSyncUnitC, btnSyncUnitF, btnConnectState, btnDisconnect, btnGetTime, btnGetMeasureMode, btnSetMeasureMode1, btnSetMeasureMode2, btnSetMeasureMode3, btnGetPower, btnGetMeasureTime, btnSetMeasuringTime, btnSetPreheatTime, btnOtaUpgrade, btnGetHistoryData, btnClearHistoryData, btnOadUpgrade;
+    private Button btnSyncData, btnSyncTime, btnGetUnit, btnSyncUnitC, btnSyncUnitF, btnConnectState, btnDisconnect, btnGetTime, btnGetMeasureMode, btnSetMeasureMode1, btnSetMeasureMode2, btnSetMeasureMode3, btnGetPower, btnGetMeasureTime, btnSetMeasuringTime, btnSetPreheatTime, btnOtaUpgrade, btnGetHistoryData, btnClearHistoryData, btnOadUpgrade, btnDeviceInfo, btnDeviceOfflineTest, btnDeviceStartTest, btnDeviceReboot;
     private ProgressDialog dialog;
     private ScPeripheral scPeripheral;
     private OadFileUtil oadFileUtil;
     private OtaFileUtil otaFileUtil;
-
+    private boolean startScan;
     private ReceiveDataListenerAdapter receiveDataListenerAdapter = new ReceiveDataListenerAdapter() {
         @Override
         public void onReceiveData(String macAddress, List<ScPeripheralData> scPeripheralDataList) {
+            disMissProgress();
             appendConsoleContent("New data received " + macAddress);
             if (!scPeripheralDataList.isEmpty()) {
-                for (ScPeripheralData temperature : scPeripheralDataList) {
-                    if (temperature != null) {
-                        appendConsoleContent(temperature.getDate() + "  " + temperature.getTemp());
+                if (scPeripheral.getDeviceType() == BleTools.TYPE_PAPER_BOX) {
+                    for (ScPeripheralData temperature : scPeripheralDataList) {
+                        if (temperature != null && temperature.getPaperResult() != null) {
+                            appendConsoleContent(temperature.getDate() + "  " + temperature.getPaperResult().toString());
+                        }
+                    }
+                } else {
+                    for (ScPeripheralData temperature : scPeripheralDataList) {
+                        if (temperature != null) {
+                            StringBuffer result = new StringBuffer();
+                            result.append("收到试纸结果：\n");
+                            result.append(temperature.getDate());
+                            result.append("\n");
+                            result.append(temperature.getTemp());
+                            appendConsoleContent(result.toString());
+                            showErrorMessage(result.toString());
+                        }
                     }
                 }
             } else {
@@ -113,19 +130,21 @@ public class InfoFragment extends Fragment {
             /**
              * The type see {@link BleCommand}
              */
-            if (dialog != null) {
-                dialog.dismiss();
-                dialog = null;
-            }
             LogUtils.d("onReceiveCommandData:" + type + "  " + resultCode + " " + value);
             appendConsoleContent(type + " command send resultCode:" + resultCode + " value:" + value);
             if (resultCode == BleCommand.ResultCode.RESULT_FAIL) {
+                disMissProgress();
                 String errorMessage = "send command failed, please restart the thermometer to start again";
                 if (!TextUtils.isEmpty(value)) {
-                    errorMessage = BleCode.getMessage(Integer.decode(value));
+                    if (scPeripheral.getDeviceType() == BleTools.TYPE_PAPER_BOX) {
+                        errorMessage = BleCode.getPaperBoxMessage(Integer.decode(value));
+                    } else {
+                        errorMessage = BleCode.getMessage(Integer.decode(value));
+                    }
                 }
                 showErrorMessage(errorMessage);
             } else if (type == BleCommand.GET_FIRMWARE_VERSION) {
+                disMissProgress();
                 scPeripheral.setVersion(value);
             } else if (scPeripheral.getDeviceType() == BleTools.TYPE_AKY_3 || scPeripheral.getDeviceType() == BleTools.TYPE_AKY_4) {
                 if (type == BleCommand.THERMOMETER_OTA_UPGRADE) {
@@ -171,6 +190,38 @@ public class InfoFragment extends Fragment {
                             break;
                     }
                 }
+            } else if (scPeripheral.getDeviceType() == BleTools.TYPE_PAPER_BOX) {
+                if (type == BleCommand.DEVICE_INFO_NOTIFY) {
+                    String message = "";
+                    int result = Integer.valueOf(value);
+                    if (result == 1) {
+                        message = "试剂卡插入";
+                    } else if (result == 2) {
+                        message = " 读取卡信息成功，并开始检测（离线模式生效）";
+                        showProgress("正在测量...\n请勿拔卡");
+                    }
+                    appendConsoleContent(message);
+                } else if (type == BleCommand.GET_DEVICE_INFO) {
+                    if (value.contains(",")) {
+                        // 当前检测状态（1 byte，0 未检测、1 检测中），
+                        // 是否存在历史数据（1 byte，未同步的数据数量），
+                        // 是否有检测卡（1 byte，0 已插卡、1 未插卡），
+                        // 是否有检测id（1 byte，0 无检测 ID，1 有检测 ID），
+                        // 反应时间（2 byte，孵育时间）
+                        String[] result = value.split(",");
+                        int state = Integer.valueOf(result[0]);
+                        int hasHistory = Integer.valueOf(result[1]);
+                        int hasPaper = Integer.valueOf(result[2]);
+                        int hasId = Integer.valueOf(result[3]);
+                        int testTime = Integer.valueOf(result[4]);
+                        int leftTime = Integer.valueOf(result[5]);
+                        appendConsoleContent(String.format("当前检测状态：%s\n存在历史数据：%d\n是否有检测卡：%s\n是否有检测id：%s\n反应时间：%d\n剩余时间：%d", state == 0 ? "未检测" : "检测中", hasHistory, hasPaper == 0 ? "已插卡" : "未插卡", hasId == 0 ? "无检测ID" : "有检测ID", testTime, leftTime));
+                    }
+                } else if (type == BleCommand.GET_DEVICE_DATA) {
+                    showProgress("正在同步试纸数据...\n请勿拔卡");
+                } else if (type == BleCommand.DEVICE_START_TEST) {
+                    showProgress("正在测量...\n请勿拔卡");
+                }
             }
         }
     };
@@ -215,14 +266,23 @@ public class InfoFragment extends Fragment {
         scPeripheralManager = ScPeripheralManager.getInstance();
 
         //Register to receive Bluetooth switch broadcast
-        getActivity().registerReceiver(receiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-        getActivity().registerReceiver(oadFileDownloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BleService.APP_FOREGROUND_SCAN_RESULT);
+        intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getActivity().registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED);
+            getActivity().registerReceiver(oadFileDownloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
+        } else {
+            getActivity().registerReceiver(receiver, intentFilter);
+            getActivity().registerReceiver(oadFileDownloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        }
         initView();
         //Sync data from Bluetooth device
         if (btnSyncData != null)
             btnSyncData.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    showProgress("");
                     scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.GET_DEVICE_DATA);
                 }
             });
@@ -359,8 +419,13 @@ public class InfoFragment extends Fragment {
                                     String value = editText.getText().toString();
                                     if (!TextUtils.isEmpty(value)) {
                                         BleCommandData bleCommandData = new BleCommandData();
-                                        bleCommandData.setParam1(Integer.valueOf(value));
-                                        scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SET_THERMOMETER_MEASURE_TIME2, bleCommandData);
+                                        if (scPeripheral.getDeviceType() == BleTools.TYPE_PAPER_BOX) {
+                                            bleCommandData.setValue(Integer.valueOf(value));
+                                            scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SET_MEASURE_TIME, bleCommandData);
+                                        } else {
+                                            bleCommandData.setParam1(Integer.valueOf(value));
+                                            scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SET_THERMOMETER_MEASURE_TIME2, bleCommandData);
+                                        }
                                     }
                                 }
                             }).setNegativeButton(getString(R.string.cancel), null).show();
@@ -424,7 +489,11 @@ public class InfoFragment extends Fragment {
             btnClearHistoryData.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.CLEAR_THERMOMETER_DATA);
+                    if (scPeripheral.getDeviceType() == BleTools.TYPE_PAPER_BOX) {
+                        scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.CLEAR_DEVICE_DATA);
+                    } else {
+                        scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.CLEAR_THERMOMETER_DATA);
+                    }
                 }
             });
         if (btnOadUpgrade != null) {
@@ -458,6 +527,34 @@ public class InfoFragment extends Fragment {
                 showConnectDevice();
             }
         });
+        if (btnDeviceInfo != null)
+            btnDeviceInfo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.GET_DEVICE_INFO);
+                }
+            });
+        if (btnDeviceOfflineTest != null)
+            btnDeviceOfflineTest.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.DEVICE_OFFLINE_TEST);
+                }
+            });
+        if (btnDeviceStartTest != null)
+            btnDeviceStartTest.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.DEVICE_START_TEST);
+                }
+            });
+        if (btnDeviceReboot != null)
+            btnDeviceReboot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.DEVICE_REBOOT);
+                }
+            });
         showConnectDevice();
     }
 
@@ -476,6 +573,7 @@ public class InfoFragment extends Fragment {
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
+                infoViewModel.getIsConnecting().setValue(false);
                 getActivity().finish();
             }
         });
@@ -483,6 +581,28 @@ public class InfoFragment extends Fragment {
         infoViewModel.getIsConnecting().setValue(true);
         //Connect a Bluetooth device
         scPeripheralManager.connectPeripheral(macAddress, receiveDataListenerAdapter);
+    }
+
+    private void disMissProgress() {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+            dialog = null;
+        }
+    }
+
+    private void showProgress(String message) {
+        disMissProgress();
+        dialog = new ProgressDialog(getContext());
+        dialog.setMessage(message);
+        //dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+
+            }
+        });
+        dialog.show();
     }
 
     private void initView() {
@@ -505,6 +625,9 @@ public class InfoFragment extends Fragment {
             case BleTools.TYPE_IFEVER_TEM_TICK:
                 getView().findViewById(R.id.tem_tick_menu_layout_vs).setVisibility(View.VISIBLE);
                 break;
+            case BleTools.TYPE_PAPER_BOX:
+                getView().findViewById(R.id.paper_box_menu_layout_vs).setVisibility(View.VISIBLE);
+                break;
         }
         btnSyncData = getView().findViewById(R.id.btn_sync_data);
         btnSyncTime = getView().findViewById(R.id.btn_sync_time);
@@ -526,6 +649,11 @@ public class InfoFragment extends Fragment {
         btnGetHistoryData = getView().findViewById(R.id.btn_get_history_data);
         btnClearHistoryData = getView().findViewById(R.id.btn_clear_history_data);
         btnOadUpgrade = getView().findViewById(R.id.btn_oad_upgrade);
+
+        btnDeviceInfo = getView().findViewById(R.id.btn_device_info);
+        btnDeviceOfflineTest = getView().findViewById(R.id.btn_device_offline_test);
+        btnDeviceStartTest = getView().findViewById(R.id.btn_device_start_test);
+        btnDeviceReboot = getView().findViewById(R.id.btn_device_reboot);
     }
 
     public void appendConsoleContent(String massage) {
@@ -621,6 +749,8 @@ public class InfoFragment extends Fragment {
                     LogUtils.d("Bluetooth is on");
                     appendConsoleContent("Bluetooth is on");
                 }
+            } else if (TextUtils.equals(action, BleService.APP_FOREGROUND_SCAN_RESULT)) {
+                scPeripheralManager.connectPeripheral(macAddress, receiveDataListenerAdapter);
             }
         }
 
@@ -692,17 +822,39 @@ public class InfoFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (infoViewModel.getIsConnecting().getValue()) {
+            if (scPeripheralManager != null) {
+                scPeripheralManager.stopBackgroundScan();
+                scPeripheralManager.connectPeripheral(macAddress, receiveDataListenerAdapter);
+            }
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (infoViewModel.getIsConnecting().getValue()) {
+            if (scPeripheralManager != null) {
+                scPeripheralManager.stopScan();
+                List<String> bindMacAddressList = new ArrayList<>();
+                bindMacAddressList.add(macAddress);
+                scPeripheralManager.startBackgroundScan(bindMacAddressList);
+            }
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         getActivity().unregisterReceiver(receiver);
         getActivity().unregisterReceiver(oadFileDownloadReceiver);
+        disMissProgress();
         if (scPeripheralManager != null) {
             scPeripheralManager.stopScan();
+            scPeripheralManager.stopBackgroundScan();
             scPeripheralManager.disconnectPeripheral();
-        }
-        if (dialog != null && dialog.isShowing()) {
-            dialog.dismiss();
-            dialog = null;
         }
     }
 }

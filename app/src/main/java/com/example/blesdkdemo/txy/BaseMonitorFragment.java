@@ -140,7 +140,7 @@ public class BaseMonitorFragment extends BaseFragment {
         if (isRecording) {
             File file = new File(this.audio_path_name);
             if (file.exists()) {
-                file.delete();
+                //file.delete();
             }
         }
     }

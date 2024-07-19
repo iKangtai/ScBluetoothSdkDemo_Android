@@ -10,8 +10,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 
 import com.example.blesdkdemo.BleApplication;
-import com.example.blesdkdemo.R;
 import com.example.blesdkdemo.util.Util;
+import com.ikangtai.bluetoothsdk.R;
 
 public class FHRPaint {
     private static int color_safe_FHR = Color.rgb(193, 255, 192);

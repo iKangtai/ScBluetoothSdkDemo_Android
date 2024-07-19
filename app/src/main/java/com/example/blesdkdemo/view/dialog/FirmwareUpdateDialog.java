@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -296,7 +297,11 @@ public class FirmwareUpdateDialog extends BaseShecareDialog {
         });
         AppInfo.getInstance().setOADConnectActive(true);
         initBleSdk();
-        context.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
+        } else {
+            context.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        }
         LogUtils.i("获取设备当前固件版本号 = " + hardwareInfo.getHardwareVersion() + ", 开始获取网络上对应固件最新的版本号!");
         if (hardwareInfo.getHardType() == HardwareInfo.HARD_TYPE_THERMOMETER || hardwareInfo.getHardType() == HardwareInfo.HARD_TYPE_TXY || versionData.isMockData()) {
             refreshBleSate();

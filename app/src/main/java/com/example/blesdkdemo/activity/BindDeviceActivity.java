@@ -207,7 +207,7 @@ public class BindDeviceActivity extends AppCompatActivity {
     public void checkFirmwareVersion(ScPeripheral scPeripheral) {
         Log.i(TAG, "check firmware version");
         boolean mockData = false;
-        ScPeripheralManager.getInstance().checkFirmwareVersion(scPeripheral,mockData, new CheckFirmwareVersionListener() {
+        ScPeripheralManager.getInstance().checkFirmwareVersion(scPeripheral, mockData, new CheckFirmwareVersionListener() {
             @Override
             public void checkSuccess(final CheckFirmwareVersionResp.Data data) {
                 if (Double.parseDouble(data.getVersion()) > Double.parseDouble(hardwareInfo.getHardwareVersion())) {
@@ -245,14 +245,17 @@ public class BindDeviceActivity extends AppCompatActivity {
         stepThirdLoading.finishLoading();
         stepThirdState.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.device_binding_page_pic_check_selected, 0);
         ToastUtils.show(getApplicationContext(), getString(R.string.bind_success));
-        startActivity(new Intent(BindDeviceActivity.this, BindResultActivity.class));
-        finish();
+        startActivityForResult(new Intent(BindDeviceActivity.this, BindResultActivity.class), 1001);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        CheckBleFeaturesUtil.handBleFeaturesResult(this, requestCode, resultCode);
+        if (requestCode == 1001) {
+            finish();
+        } else {
+            CheckBleFeaturesUtil.handBleFeaturesResult(this, requestCode, resultCode);
+        }
     }
 }
 

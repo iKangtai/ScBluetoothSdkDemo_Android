@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothProfile;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +24,8 @@ import com.ikangtai.bluetoothsdk.listener.ReceiveDataListenerAdapter;
 import com.ikangtai.bluetoothsdk.model.ScPeripheral;
 import com.ikangtai.bluetoothsdk.model.ScPeripheralData;
 import com.ikangtai.bluetoothsdk.util.BleCode;
+import com.ikangtai.bluetoothsdk.util.BleTools;
+import com.ikangtai.bluetoothsdk.util.BleUtils;
 import com.ikangtai.bluetoothsdk.util.LogUtils;
 
 import java.util.List;
@@ -102,23 +103,27 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
             if (type == BleCommand.GET_DEVICE_DATA) {
                 byte[] data = value;
                 if (MonitorBLEFragment.this.isRunning) {
-                    Message obtain = Message.obtain();
-                    obtain.what = 1;
-                    obtain.arg1 = data.length;
-                    obtain.obj = data;
-                    int[] result = mSoundCard.handleData(data);
-                    int frameValue = result[0];
-                    int heartIconFlag = result[1];
-                    int signalIntensity = result[2];
-                    if (frameValue != -1) {
-                        mFHR = frameValue;
-                        monitorView.addFHR(frameValue);
+                    int[] result = null;
+                    if (scPeripheral.getDeviceType() == BleTools.TYPE_TXY_P811) {
+                        result = mSoundCard.handleP811Data(data);
+                    } else {
+                        result = mSoundCard.handleData(data);
                     }
-                    if (heartIconFlag == 1) {
-                        MonitorBLEFragment.this.heartIconFlag = 1;
-                    }
-                    if (signalIntensity != -1) {
-                        Log.d("xyl", "signalIntensity:"+signalIntensity);
+                    if (result != null) {
+                        int frameValue = result[0];
+                        int heartIconFlag = result[1];
+                        int signalIntensity = result[2];
+                        if (frameValue >= 0) {
+                            mFHR = frameValue;
+                            monitorView.addFHR(frameValue);
+                        }
+                        if (heartIconFlag == 1 && BleUtils.bytesToInt(data, 4, 1) == 0x04) {
+                            //p811音频数据 胎心数据分包传出，在需要的时候更新
+                            MonitorBLEFragment.this.heartIconFlag = 1;
+                        }
+                        if (signalIntensity != -1) {
+                            Log.d("xyl", "signalIntensity:" + signalIntensity);
+                        }
                     }
                 }
             }
@@ -254,31 +259,29 @@ public class MonitorBLEFragment extends BaseMonitorFragment implements View.OnCl
     }
 
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn_quickening:
-                if (this.needPermission) {
-                    Toast.makeText(this.mContext, getResources().getString(R.string.no_ble_permission), Toast.LENGTH_LONG).show();
-                } else if (!this.isConnected) {
-                    Toast.makeText(this.mContext, getResources().getString(R.string.ununited), Toast.LENGTH_SHORT).show();
-                } else {
-                    setQuickening();
-                }
-                break;
-            case R.id.btn_switch:
-                if (this.needPermission) {
-                    Toast.makeText(this.mContext, getResources().getString(R.string.no_ble_permission), Toast.LENGTH_LONG).show();
-                } else if (!this.isConnected) {
-                    Toast.makeText(this.mContext, getResources().getString(R.string.ununited), Toast.LENGTH_SHORT).show();
-                } else if (Util.getFreeMB() < 60) {
-                    Toast.makeText(this.mContext, getResources().getString(R.string.free_space_insufficient), Toast.LENGTH_SHORT).show();
-                } else if (!isRecording) {
-                    recordStart();
-                    this.mSoundCard.startRecord(this.audio_path_name);
-                } else {
-                    this.mSoundCard.stopRecord();
-                    recordEnd(getResources().getString(R.string.recordEnd_if_end));
-                }
-                break;
+        int id = view.getId();
+        if (id == R.id.btn_quickening) {
+            if (this.needPermission) {
+                Toast.makeText(this.mContext, getResources().getString(R.string.no_ble_permission), Toast.LENGTH_LONG).show();
+            } else if (!this.isConnected) {
+                Toast.makeText(this.mContext, getResources().getString(R.string.ununited), Toast.LENGTH_SHORT).show();
+            } else {
+                setQuickening();
+            }
+        } else if (id == R.id.btn_switch) {
+            if (this.needPermission) {
+                Toast.makeText(this.mContext, getResources().getString(R.string.no_ble_permission), Toast.LENGTH_LONG).show();
+            } else if (!this.isConnected) {
+                Toast.makeText(this.mContext, getResources().getString(R.string.ununited), Toast.LENGTH_SHORT).show();
+            } else if (Util.getFreeMB() < 60) {
+                Toast.makeText(this.mContext, getResources().getString(R.string.free_space_insufficient), Toast.LENGTH_SHORT).show();
+            } else if (!isRecording) {
+                recordStart();
+                this.mSoundCard.startRecord(this.audio_path_name);
+            } else {
+                this.mSoundCard.stopRecord();
+                recordEnd(getResources().getString(R.string.recordEnd_if_end));
+            }
         }
     }
 }

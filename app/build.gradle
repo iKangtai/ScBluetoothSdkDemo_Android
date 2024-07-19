@@ -1,16 +1,19 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "29.0.2"
+    compileSdk 34
     defaultConfig {
         applicationId "com.example.blesdkdemo"
+        namespace 'com.example.blesdkdemo'
         minSdkVersion 22
-        targetSdkVersion 31
+        targetSdk 34
         versionCode Integer.parseInt(project.BLE_SDK_VERSION_CODE)
         versionName project.BLE_SDK_VERSION_NAME
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+    }
+    buildFeatures {
+        buildConfig = true
     }
     buildTypes {
         debug {
@@ -48,11 +51,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    implementation 'com.github.getActivity:XXPermissions:18.2'
+    implementation 'com.github.getActivity:XXPermissions:20.0'
     //implementation project(':ScBluetoothLib')
-    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.4.8.1'
+    implementation 'com.ikangtai.buletoothsdk:ScBuletoothLib:1.4.9'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
     implementation 'com.j256.ormlite:ormlite-core:5.1'
     implementation 'com.google.code.gson:gson:2.8.4'
-
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
 }

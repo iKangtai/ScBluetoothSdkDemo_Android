@@ -24,9 +24,12 @@
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
     <string name="request_location_premisson">Scanning Bluetooth device needs to open the location function permission.</string>
+    <string name="request_location_ble_premisson">Scanning Bluetooth devices requires the "Connect Nearby Devices" feature permission</string>
+    <string name="ble_location_permission">Your location permission is currently turned off, and you must first enable the [Location] permission in System Settings-Application-Pregnant Orange-Permissions before you can use the service normally~</string>
+    <string name="ble_device_permission">Your nearby Bluetooth device permission is currently turned off, and you must first turn on the [Nearby Bluetooth Device] permission in System Settings-Application-Pregnant Orange-Permissions before you can use the service normally~</string>
     <string name="location_service_turn_on">The location service is enabled</string>
     <string name="location_service_turn_off">The location service is not enabled</string>
-    <string name="request_location_premisson_tips">Please turn on the Bluetooth of your phone, otherwise you cannot connect the thermometer.</string>
+    <string name="request_location_premisson_tips">Please turn on the Bluetooth of your phone, otherwise you cannot connect the device.</string>
     <string name="sync_time">Sync Time</string>
     <string name="sync_unit_c">Sync Unit ℃</string>
     <string name="sync_unit_f">Sync Unit ℉</string>

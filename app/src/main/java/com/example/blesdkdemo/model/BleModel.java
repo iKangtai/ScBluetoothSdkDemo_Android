@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Handler;
 
 import androidx.fragment.app.Fragment;
@@ -123,9 +124,17 @@ public class BleModel {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         if (activity != null) {
-            activity.registerReceiver(receiver, filter);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                activity.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
+            } else {
+                activity.registerReceiver(receiver, filter);
+            }
         } else if (fragment != null) {
-            fragment.getActivity().registerReceiver(receiver, filter);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                fragment.getActivity().registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
+            }else {
+                fragment.getActivity().registerReceiver(receiver, filter);
+            }
         }
     }
 
@@ -194,9 +203,14 @@ public class BleModel {
                 LogUtils.d("onReceiveCommandData:" + type + "  " + resultCode + " " + value);
                 switch (type) {
                     case BleCommand.GET_FIRMWARE_VERSION:
-                        BleCommandData commandData = new BleCommandData();
-                        commandData.setParam1(AppInfo.getInstance().isTempUnitC() ? 1 : 2);
-                        scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT, commandData);
+                        if (connectScPeripheral.getDeviceType() == BleTools.TYPE_SMART_THERMOMETER || connectScPeripheral.getDeviceType() == BleTools.TYPE_AKY_3 || connectScPeripheral.getDeviceType() == BleTools.TYPE_AKY_4) {
+                            BleCommandData commandData = new BleCommandData();
+                            commandData.setParam1(AppInfo.getInstance().isTempUnitC() ? 1 : 2);
+                            scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.SYNC_THERMOMETER_UNIT, commandData);
+                        }
+                        if (connectScPeripheral.getDeviceType() == BleTools.TYPE_PAPER_BOX) {
+                            scPeripheralManager.sendPeripheralCommand(macAddress, BleCommand.DEVICE_OFFLINE_TEST);
+                        }
                         if (connectScPeripheral != null) {
                             connectScPeripheral.setVersion(value);
                             if (blePresenter != null) {
@@ -230,11 +244,6 @@ public class BleModel {
                     endConnBLETime = System.currentTimeMillis();
                     LogUtils.i("connected!");
                     refreshBleState(macAddress, true);
-                    if (connectScPeripheral != null && (connectScPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY || connectScPeripheral.getDeviceType() == BleTools.TYPE_LJ_TXY_168)) {
-                        if (blePresenter != null) {
-                            blePresenter.updateBleDeviceInfo(connectScPeripheral);
-                        }
-                    }
                 } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
                     LogUtils.i("Device disconnected " + macAddress);
                     long currentTime = System.currentTimeMillis();

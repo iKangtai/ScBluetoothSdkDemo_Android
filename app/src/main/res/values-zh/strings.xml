@@ -25,9 +25,12 @@
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
     <string name="request_location_premisson">扫描蓝牙设备需要开启定位功能权限</string>
+    <string name="request_location_ble_premisson">扫描蓝牙设备需要”连接附近的设备“功能权限</string>
+    <string name="ble_location_permission">您的定位权限当前是关闭的，要先在系统设置-应用-孕橙-权限中开启【定位】权限，才能正常使用服务~</string>
+    <string name="ble_device_permission">您的附近蓝牙设备权限当前是关闭的，要先在系统设置-应用-孕橙-权限中开启【附近蓝牙设备】权限，才能正常使用服务~</string>
     <string name="location_service_turn_on">定位服务已开启</string>
     <string name="location_service_turn_off">定位服务未开启</string>
-    <string name="request_location_premisson_tips">请打开手机蓝牙，否则无法连接体温计</string>
+    <string name="request_location_premisson_tips">请打开手机蓝牙，否则无法连接体蓝牙设备</string>
     <string name="sync_time">同步时间</string>
     <string name="sync_unit_c">同步温度单位℃</string>
     <string name="sync_unit_f">同步温度单位℉</string>
